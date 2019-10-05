@@ -1,301 +1,353 @@
 Attribute VB_Name = "Note_CMD"
-Public Function CMD_In(ByRef cmd As String)
-Dim cmdList, fOut
-Dim localVarNameList() As String
-Dim i As Long
-cmdList = Split(cmd, vbCrLf)
-For i = 0 To UBound(cmdList)
-    If cmdList(i) <> "" Then
-        fOut = CMD_In_Line(cmdList(i))
-    End If
-Next
+Public Const 控制台名字 = "Control Desk"
+Public userDic As New Dictionary
+
+Public Function CMD_In(cmd As String) As String
+    Dim lineCMD() As String
+    lineCMD = Split(cmd, vbCrLf)
+    For i = 0 To UBound(lineCMD)
+        If lineCMD(i) <> "" Then
+            CMD_In = CMD_In & CMD_LineExecute(lineCMD(i)) & vbCrLf
+        End If
+    Next
 End Function
-Public Function CMD_In_Line(ByVal cmdLine As String)
-Dim temp, fPar
-Dim fName As String
-temp = Split(cmdLine, ":")
-fName = temp(0)
-fPar = Split(temp(1), ",")
-CMD_In_Line = CMD_In_Line_GetFunction(fName, fPar)
+Private Function CMD_LineExecute(cmd As String) As String
+    Dim cT() As String
+    cT = Split(cmd & " ", " ")
+    Select Case UCase(cT(0))
+        Case "帮助", "HELP"
+            CMD_LineExecute = vbCrLf & "阵列新增节点[FORNODEADD] xStart(数值) xStep(数值) xCounts(数值) yStart(数值) yStep(数值) yCounts(数值) nodeTitle(字符串) nodeContent(字符串) pitchOn(0/1) size(数值) color(数值)" _
+                            & vbCrLf & "显示鼠标坐标[VISMOUSEPOS] 1(显示)/0(不显示)" _
+                            & vbCrLf & "自增偏移量[SELFIM] i偏移 x偏移 y偏移" _
+                            & vbCrLf & "字典项增加[DICITEMADD] 键A:值A,键B:值B……" _
+                            & vbCrLf & "字典项清空[DICREMOVEALL]" _
+                            & vbCrLf & "打印字典[PRINTDIC]" _
+                            & vbCrLf & "打印撤销列表[PRINTREVOKE]" _
+                            & vbCrLf & "打印重做列表[PRINTREDO]" _
+                            & vbCrLf & "设置树状文本导入位置控制常数[SETTREETXTINPOSCONTROLCONST/STTIPCC/STIPC] 根节点X(数值) 根节点Y(数值) 节点X间隔(数值) 节点Y间隔(数值)" _
+                            & vbCrLf & "设置位图导入位置控制常数[SETIMAGEINPOSCONTROLCONST/SIIPCC/SIPC] 根节点X(数值) 根节点Y(数值) 节点X间隔(数值) 节点Y间隔(数值)" _
+                            & vbCrLf & "矩线间隔[RECTANGLESTEP/RECSTEP] 步长(数值)" _
+                            & vbCrLf & "矩线颜色[RECTANGLECOLOR/RECCOLOR] VBColor(数值)[RColor(数值) GColor(数值) BColor(数值)]" _
+                            & vbCrLf & "节点放缩[NODEZOOM] 基点节点名(字符串) X轴放缩倍数(数值) Y轴放缩倍数(数值)" _
+                            & vbCrLf & "创建节点[NEWBUILTNODE/NBN] X位置(数值) Y位置(数值) 标题(字符串) 内容(字符串) VBColor(数值) 大小(数值) 选中(0/1)" _
+                            & vbCrLf & "编辑节点[EDITNODE/EN] 节点遍历ID(数值) 标题(字符串) 内容(字符串) VBColor(数值) 大小(数值)" _
+                            & vbCrLf & "位移节点[MOVENODE/MN] 节点遍历ID(数值) X位置(数值) Y位置(数值)" _
+                            & vbCrLf & "删除节点[DELETENODE/DN] 节点遍历ID1(数值),节点遍历ID2(数值),节点遍历ID3(数值)..." _
+                            & vbCrLf & "选中节点[SELECTNODE/SN] 节点遍历ID1(数值),节点遍历ID2(数值),节点遍历ID3(数值)..." _
+                            & vbCrLf & "创建连接[NEWBUILTNODE/NBL] 连接源节点遍历ID(数值) 连接去节点遍历ID(数值) 连接内容(字符串) 连接粗细(数值) 选中(0/1) *连接已存在会被删除" _
+                            & vbCrLf & "编辑连接内容[EDITLINE/EL] 源节点遍历ID(数值) 去节点遍历ID(数值) 连接内容(字符串) 连接粗细(数值)" _
+                            & vbCrLf & "选中连接[SELECTLINE/SL] 连接1源节点遍历ID(数值):连接1去节点遍历ID(数值),连接2源节点遍历ID(数值):连接2去节点遍历ID(数值),连接3源节点遍历ID(数值):连接3去节点遍历ID(数值)..." _
+                            & vbCrLf & "设置动作更新速度[SETACTIONUPDATASPEED/SAUS] 更新间隔(数值)" _
+                            & vbCrLf & "启动动作时钟[STARTACTIONTIMER/SAT] 1(启动)/0(关闭)" _
+                            & vbCrLf & "定义动作[DEFINEACTION/DEFA/DA] 动作名(字符串),动作节点ID1(数值)[|动作节点ID2(数值)[|动作节点ID3(数值)[...]]],动作时间执行间隔(数值),动作类型(直线/圆周),直线:向量X(数值),向量Y(数值)/[圆周:角度(数值),中心节点ID(数值)],动作次数(数值),是否循环(0/1)" _
+                            & vbCrLf & "重启动作[RESTARTACTION/RA] 动作名(字符串)"
+            CMD_LineExecute = CMD_LineExecute _
+                            & vbCrLf & "关闭动作[OFFACTION/OA] 动作名(字符串)" _
+                            & vbCrLf & "打印动作列表[PRINTACTIONLIST/PAL]" _
+                            & vbCrLf & "打印可执行动作列表[PRINTEXECUTABLEACTIONLIST/PEAL]"
+            Exit Function
+        Case "阵列新增节点", "FORNODEADD"
+            阵列新增节点 Val(cT(1)), Val(cT(2)), Val(cT(3)), Val(cT(4)), Val(cT(5)), Val(cT(6)), cT(7), cT(8), cT(9), Val(cT(10)), Val(cT(11))
+            GoTo Success
+        Case "显示鼠标坐标", "VISMOUSEPOS"
+            If cT(1) = "1" Or cT(1) = "TRUE" Then
+                NoteControlDesk.CDMouseUpdataTimer.Enabled = True
+            Else
+                NoteControlDesk.CDMouseUpdataTimer.Enabled = False
+                NoteControlDesk.Caption = 控制台名字
+            End If
+            GoTo Success
+        Case "vbCrLf", "SELFIM"
+            oneselfAddI = Val(cT(1))
+            oneselfAddX = Val(cT(2))
+            oneselfAddY = Val(cT(3))
+            GoTo Success
+        Case "字典项增加", "DICITEMADD"
+            字典项增加 cT(1)
+            CMD_LineExecute = vbCrLf & "当前字典大小：" & userDic.Count
+            Exit Function
+        Case "字典项清空", "DICREMOVEALL"
+            userDic.RemoveAll
+            GoTo Success
+        Case "打印字典", "PRINTDIC"
+            CMD_LineExecute = vbCrLf & 字典打印(userDic)
+            Exit Function
+        Case "打印撤销列表", "PRINTREVOKE"
+            CMD_LineExecute = vbCrLf & Join(behaviorList, vbCrLf)
+            Exit Function
+        Case "打印重做列表", "PRINTREDO"
+            CMD_LineExecute = vbCrLf & Join(redolist, vbCrLf)
+            Exit Function
+        Case "设置树状文本导入位置控制常数", "SETTREETXTINPOSCONTROLCONST", "STTIPCC", "STIPC"
+            treeTxtToNtx_StartX = Val(cT(1))
+            treeTxtToNtx_StartY = Val(cT(2))
+            treeTxtToNtx_StepX = Val(cT(3))
+            treeTxtToNtx_StepY = Val(cT(4))
+            GoTo Success
+        Case "设置位图导入位置控制常数", "SETIMAGEINPOSCONTROLCONST", "SIIPCC", "SIPC"
+            imageToNtx_StartX = Val(cT(1))
+            imageToNtx_StartY = Val(cT(2))
+            imageToNtx_StepX = Val(cT(3))
+            imageToNtx_StepY = Val(cT(4))
+            GoTo Success
+        Case "矩线间隔", "RECTANGLESTEP", "RECSTEP"
+            rectangleStep = Val(cT(1))
+            GoTo Success
+        Case "矩线颜色", "RECTANGLECOLOR", "RECCOLOR"
+            If UBound(cT) > 2 Then
+                rectangleLineColor = RGB(Val(cT(1)), Val(cT(2)), Val(cT(3)))
+            Else
+                rectangleLineColor = Val(cT(1))
+            End If
+            GoTo Success
+        Case "节点放缩", "NODEZOOM"
+            节点放缩 cT(1), Val(cT(2)), Val(cT(3))
+            GoTo Success
+        Case "创建节点", "NEWBUILTNODE", "NBN"
+            节点创建 Val(cT(1)), Val(cT(2)), cT(3), cT(4), Val(cT(5)), Val(cT(6)), cT(7)
+            GoTo Success
+        Case "编辑节点", "EDITNODE", "EN"
+            编辑节点 Val(cT(1)), cT(2), cT(3), Val(cT(4)), Val(cT(5))
+            GoTo Success
+        Case "位移节点", "MOVENODE", "MN"
+            位移节点 Val(cT(1)), Val(cT(2)), Val(cT(3))
+            GoTo Success
+        Case "删除节点", "DELETENODE", "DN"
+            删除节点 cT(1)
+            GoTo Success
+        Case "选中节点", "SELECTNODE", "SN"
+            选中节点 cT(1)
+            GoTo Success
+        Case "创建连接", "NEWBUILTNODE", "NBL"
+            连接创建 Val(cT(1)), Val(cT(2)), cT(3), Val(cT(4)), cT(5)
+            GoTo Success
+        Case "编辑连接内容", "EDITLINE", "EL"
+            编辑连接 Val(cT(1)), Val(cT(2)), cT(3), Val(cT(4))
+            GoTo Success
+        Case "选中连接", "SELECTLINE", "SL"
+            选中连接 cT(1)
+            GoTo Success
+        Case "设置动作更新速度", "SETACTIONUPDATASPEED", "SAUS"
+            设置动作更新速度 Val(cT(1))
+            GoTo Success
+        Case "启动动作时钟", "STARTACTIONTIMER", "SAT"
+            启动动作时钟 cT(1)
+            GoTo Success
+        Case "定义动作", "DEFINEACTION", "DEFA", "DA"
+            定义动作 cT(1)
+            GoTo Success
+        Case "重启动作", "RESTARTACTION", "RA"
+            CMD_LineExecute = 重启动作(cT(1))
+            Exit Function
+        Case "关闭动作", "OFFACTION", "OA"
+            CMD_LineExecute = 关闭动作(cT(1))
+            Exit Function
+        Case "打印动作列表", "PRINTACTIONLIST", "PAL"
+            CMD_LineExecute = 打印动作列表
+            Exit Function
+        Case "打印可执行动作列表", "PRINTEXECUTABLEACTIONLIST", "PEAL"
+            CMD_LineExecute = 打印可执行动作列表
+            Exit Function
+    End Select
+    CMD_LineExecute = "未知命令！"
+Exit Function
+Success:
+    CMD_LineExecute = "命令执行成功！"
 End Function
-Public Function CMD_In_Line_GetFunction(ByRef fName As String, ByRef fPar)
-Dim fOut
-If InStr(1, fName, "NodeEditeStart", 1) Then
-    NodeEditeStart Val(fPar(0)), Val(fPar(1))
-ElseIf InStr(1, fName, "NodeUboundAdd", 1) Then
-    NodeUboundAdd fPar(0)
-ElseIf InStr(1, fName, "LineUboundAdd", 1) Then
-    LineUboundAdd fPar(0)
-ElseIf InStr(1, fName, "NodeCheck", 1) Then
-    fOut = NodeCheck(Val(fPar(0)), Val(fPar(1)))
-ElseIf InStr(1, fName, "NodeEdit_NewNode", 1) Then
-    NodeEdit_NewNode fPar(0), fPar(1), Val(fPar(2)), Val(fPar(3)), StrToBool(fPar(4))
-ElseIf InStr(1, fName, "NodeEdit_ContentFilter", 1) Then
-    fOut = NodeEdit_ContentFilter(StrToBool(fPar(0)))
-ElseIf InStr(1, fName, "LineAdd", 1) Then
-    LineAdd Val(fPar(0)), Val(fPar(1)), StrToBool(fPar(2))
-ElseIf InStr(1, fName, "LineDelete", 1) Then
-    LineDelete Val(fPar(0))
-ElseIf InStr(1, fName, "NodeDelete", 1) Then
-    NodeDelete Val(fPar(0))
-ElseIf InStr(1, fName, "NodeDelete_RelevantLine", 1) Then
-    NodeDelete_RelevantLine Val(fPar(0))
-ElseIf InStr(1, fName, "LineAdd_Save", 1) Then
-    LineAdd_Save Val(fPar(0)), Val(fPar(1)), StrToBool(fPar(2))
-ElseIf InStr(1, fName, "LineAdd_RepeatedChecking", 1) Then
-    fOut = LineAdd_RepeatedChecking(Val(fPar(0)), Val(fPar(1)))
-ElseIf InStr(1, fName, "Updata", 1) Then
-    Updata
-ElseIf InStr(1, fName, "Updata_Colourful", 1) Then
-    Updata_Colourful fPar(0)
-ElseIf InStr(1, fName, "Updata_GetNodeTargetAim", 1) Then
-    Updata_GetNodeTargetAim fPar(0)
-ElseIf InStr(1, fName, "Updata_GetNodeTargetAim_Deselect", 1) Then
-    Updata_GetNodeTargetAim_Deselect fPar(0)
-ElseIf InStr(1, fName, "Updata_GetNodeTargetAim_Select", 1) Then
-    Updata_GetNodeTargetAim_Select Val(fPar(0))
-ElseIf InStr(1, fName, "Updata_GetNodeTargetAim_Select_Backward", 1) Then
-    Updata_GetNodeTargetAim_Select_Backward Val(fPar(0))
-ElseIf InStr(1, fName, "Updata_GetNodeTargetAim_Select_Forward", 1) Then
-    Updata_GetNodeTargetAim_Select_Forward Val(fPar(0))
-ElseIf InStr(1, fName, "Updata_SelectMove", 1) Then
-    Updata_SelectMove fPar(0)
-ElseIf InStr(1, fName, "Updata_RegionalSelect", 1) Then
-    Updata_RegionalSelect fPar(0)
-ElseIf InStr(1, fName, "Updata_RegionalSelect_Line", 1) Then
-    Updata_RegionalSelect_Line fPar(0)
-ElseIf InStr(1, fName, "Updata_RegionalSelect_Node", 1) Then
-    Updata_RegionalSelect_Node fPar(0)
-ElseIf InStr(1, fName, "Updata_NodeMove", 1) Then
-    Updata_NodeMove fPar(0)
-ElseIf InStr(1, fName, "Updata_AllNodeMove", 1) Then
-    Updata_AllNodeMove StrToBool(fPar(0))
-ElseIf InStr(1, fName, "Updata_AllNodeMove_Moving", 1) Then
-    Updata_AllNodeMove_Moving Val(fPar(0)), Val(fPar(1)), StrToBool(fPar(2))
-ElseIf InStr(1, fName, "Updata_Node", 1) Then
-    Updata_Node fPar(0)
-ElseIf InStr(1, fName, "Updata_Node_addNew", 1) Then
-    Updata_Node_addNew fPar(0)
-ElseIf InStr(1, fName, "Updata_Node_SetColor", 1) Then
-    Updata_Node_SetColor Val(fPar(0))
-ElseIf InStr(1, fName, "Updata_Node_GetColor", 1) Then
-    fOut = Updata_Node_GetColor(Val(fPar(0)))
-ElseIf InStr(1, fName, "Updata_NodeLine", 1) Then
-    Updata_NodeLine fPar(0)
-ElseIf InStr(1, fName, "Updata_nodeLine_addNewLine", 1) Then
-    Updata_nodeLine_addNewLine fPar(0)
-ElseIf InStr(1, fName, "LoadProfile", 1) Then
-    LoadProfile fPar(0)
-ElseIf InStr(1, fName, "LoadProfile_InitializationBool", 1) Then
-    LoadProfile_InitializationBool fPar(0)
-ElseIf InStr(1, fName, "SaveProfile", 1) Then
-    SaveProfile fPar(0)
-ElseIf InStr(1, fName, "noteSaveCheck_ContentCheck", 1) Then
-    fOut = noteSaveCheck_ContentCheck(StrToBool(fPar(0)))
-ElseIf InStr(1, fName, "NoteFileRead_VersionCheck", 1) Then
-    fOut = NoteFileRead_VersionCheck(Val(fPar(0)))
-ElseIf InStr(1, fName, "noteArrInitialization", 1) Then
-    noteArrInitialization fPar(0)
-ElseIf InStr(1, fName, "newAddNote", 1) Then
-    newAddNote fPar(0)
-ElseIf InStr(1, fName, "NoteGlobalViewSet", 1) Then
-    NoteGlobalViewSet StrToBool(fPar(0))
-ElseIf InStr(1, fName, "SelectDisplayObjcet", 1) Then
-    SelectDisplayObjcet fPar(0)
-ElseIf InStr(1, fName, "SelectDisplayObjcet_Forward", 1) Then
-    SelectDisplayObjcet_Forward StrToBool(fPar(0))
-ElseIf InStr(1, fName, "RollerEventHandling", 1) Then
-    RollerEventHandling StrToBool(fPar(0))
-ElseIf InStr(1, fName, "MainCoordinateSystemDefinition", 1) Then
-    MainCoordinateSystemDefinition fPar(0)
-ElseIf InStr(1, fName, "BehaviorListUboundAdd", 1) Then
-    BehaviorListUboundAdd fPar(0)
-ElseIf InStr(1, fName, "RedoListUboundAdd", 1) Then
-    RedoListUboundAdd fPar(0)
-ElseIf InStr(1, fName, "CopyObject", 1) Then
-    CopyObject StrToBool(fPar(0))
-ElseIf InStr(1, fName, "PasteObject", 1) Then
-    PasteObject fPar(0)
-ElseIf InStr(1, fName, "PasteObject_GetNtx", 1) Then
-    fOut = PasteObject_GetNtx(fPar(0))
-ElseIf InStr(1, fName, "PasteObject_NtxFileCheck", 1) Then
-    fOut = PasteObject_NtxFileCheck(Val(fPar(0)))
-ElseIf InStr(1, fName, "PasteObject_Local_Node", 1) Then
-    PasteObject_Local_Node fPar(0)
-ElseIf InStr(1, fName, "PasteObject_Local_Line", 1) Then
-    PasteObject_Local_Line Val(fPar(0))
-ElseIf InStr(1, fName, "CopyObject_Coding", 1) Then
-    CopyObject_Coding fPar(0)
-ElseIf InStr(1, fName, "CopyObject_Line", 1) Then
-    CopyObject_Line StrToBool(fPar(0))
-ElseIf InStr(1, fName, "CopyObject_Node", 1) Then
-    CopyObject_Node StrToBool(fPar(0))
-ElseIf InStr(1, fName, "CopyObject_Line_GetNodeRelativityId", 1) Then
-    fOut = CopyObject_Line_GetNodeRelativityId(Val(fPar(0)))
-ElseIf InStr(1, fName, "MeExeIdSet", 1) Then
-    MeExeIdSet fPar(0)
-ElseIf InStr(1, fName, "BehaviorIdSet", 1) Then
-    BehaviorIdSet fPar(0)
-ElseIf InStr(1, fName, "RedoSet", 1) Then
-    RedoSet fPar(0)
-ElseIf InStr(1, fName, "DeleteSelectObjcet", 1) Then
-    DeleteSelectObjcet fPar(0)
-ElseIf InStr(1, fName, "DeselectObjcet", 1) Then
-    DeselectObjcet fPar(0)
-ElseIf InStr(1, fName, "ChainSelection", 1) Then
-    ChainSelection Val(fPar(0)), Val(fPar(1))
-ElseIf InStr(1, fName, "DirectSelect", 1) Then
-    DirectSelect fPar(0)
-ElseIf InStr(1, fName, "AllSelection", 1) Then
-    AllSelection fPar(0)
-ElseIf InStr(1, fName, "ChainSelection_All", 1) Then
-    ChainSelection_All Val(fPar(0))
-ElseIf InStr(1, fName, "RedoBehavior", 1) Then
-    RedoBehavior fPar(0)
-ElseIf InStr(1, fName, "Redo_LineAdd_Save", 1) Then
-    Redo_LineAdd_Save Val(fPar(0))
-ElseIf InStr(1, fName, "Redo_LineDelete", 1) Then
-    Redo_LineDelete Val(fPar(0))
-ElseIf InStr(1, fName, "Redo_NodeEdit_NewNode", 1) Then
-    Redo_NodeEdit_NewNode Val(fPar(0))
-ElseIf InStr(1, fName, "Redo_NodeEdit_ReviseNode", 1) Then
-    Redo_NodeEdit_ReviseNode Val(fPar(0)), fPar(1), fPar(2)
-ElseIf InStr(1, fName, "Redo_NodeDelete", 1) Then
-    Redo_NodeDelete Val(fPar(0))
-ElseIf InStr(1, fName, "RevokeBehavior", 1) Then
-    RevokeBehavior fPar(0)
-ElseIf InStr(1, fName, "Revoke_LineAdd_Save", 1) Then
-    Revoke_LineAdd_Save Val(fPar(0))
-ElseIf InStr(1, fName, "Revoke_LineDelete", 1) Then
-    Revoke_LineDelete Val(fPar(0))
-ElseIf InStr(1, fName, "Revoke_NodeEdit_NewNode", 1) Then
-    Revoke_NodeEdit_NewNode Val(fPar(0))
-ElseIf InStr(1, fName, "Revoke_NodeEdit_ReviseNode", 1) Then
-    Revoke_NodeEdit_ReviseNode Val(fPar(0)), fPar(1), fPar(2)
-ElseIf InStr(1, fName, "Revoke_NodeDelete", 1) Then
-    Revoke_NodeDelete Val(fPar(0))
-ElseIf InStr(1, fName, "MapUpdata", 1) Then
-    MapUpdata fPar(0)
-ElseIf InStr(1, fName, "MapUpdata_DetermineTheBoundary", 1) Then
-    MapUpdata_DetermineTheBoundary fPar(0)
-ElseIf InStr(1, fName, "MapUpdata_AoVMove", 1) Then
-    MapUpdata_AoVMove fPar(0)
-ElseIf InStr(1, fName, "MapUpdata_AoVMove_Moving", 1) Then
-    MapUpdata_AoVMove_Moving Val(fPar(0)), Val(fPar(1))
-ElseIf InStr(1, fName, "绘制窗口世界视角", 1) Then
-    绘制窗口世界视角 fPar(0)
-ElseIf InStr(1, fName, "笔记对象绘制", 1) Then
-    笔记对象绘制 fPar(0)
-ElseIf InStr(1, fName, "MToZF", 1) Then
-    fOut = MToZF(Val(fPar(0)))
-ElseIf InStr(1, fName, "StrToBool", 1) Then
-    fOut = StrToBool(StrToBool(fPar(0)))
-ElseIf InStr(1, fName, "TwoPointDistance", 1) Then
-    fOut = TwoPointDistance(Val(fPar(0)), Val(fPar(1)), Val(fPar(2)), Val(fPar(3)))
-ElseIf InStr(1, fName, "OverlappingJudgment", 1) Then
-    fOut = OverlappingJudgment(Val(fPar(0)), Val(fPar(1)), Val(fPar(2)), Val(fPar(3)), Val(fPar(4)))
-ElseIf InStr(1, fName, "Rainbow_BackEnd", 1) Then
-    fOut = Rainbow_BackEnd(Val(fPar(0)))
-ElseIf InStr(1, fName, "Rainbow_RedEnd", 1) Then
-    fOut = Rainbow_RedEnd(Val(fPar(0)))
-ElseIf InStr(1, fName, "注册表注册", 1) Then
-    fOut = 注册表注册(fPar(0), Val(fPar(1)))
-ElseIf InStr(1, fName, "环境文件拷贝", 1) Then
-    环境文件拷贝 fPar(0)
-End If
-CMD_In_Line_GetFunction = fOut
+Private Function 打印可执行动作列表() As String
+    Dim i As Long, j As Long
+    打印可执行动作列表 = "定义动作 "
+    For i = 1 To UBound(actionList)
+        With actionList(i)
+            打印可执行动作列表 = 打印可执行动作列表 & .name & ","
+            For j = 0 To UBound(.nodeID)
+                打印可执行动作列表 = 打印可执行动作列表 & .nodeID(j) & "|"
+            Next
+            打印可执行动作列表 = Mid(打印可执行动作列表, 1, Len(打印可执行动作列表) - 1) & "," & .interval & "," & .route
+            Select Case .route
+                Case "直线"
+                    打印可执行动作列表 = 打印可执行动作列表 & "," & .vector.x & "," & .vector.y
+                Case "圆周"
+                    打印可执行动作列表 = 打印可执行动作列表 & "," & .angle & "," & .aimNode
+            End Select
+            打印可执行动作列表 = 打印可执行动作列表 & "," & .endTime & "," & .repeat & vbCrLf
+        End With
+    Next
 End Function
-Public Function Judge_constants_and_variables(ByRef localVarNameList() As String, ByRef varName As String) As Long
-Dim i As Long: Dim ucaseVN As String
-ucaseVN = UCase(varName)
-For i = 0 To UBound(publicVarName)
-    If UCase(publicVarName(i)) = ucaseVN Then
-        Judge_constants_and_variables = 10 + i: Exit Function
-    End If
-Next
-For i = 0 To UBound(publicArrVarName)
-    If UCase(publicArrVarName(i)) = ucaseVN Then
-        Judge_constants_and_variables = 100 + i: Exit Function
-    End If
-Next
-For i = 0 To UBound(publicFormName)
-    If UCase(publicFormName(i)) = ucaseVN Then
-        Judge_constants_and_variables = 1000 + i: Exit Function
-    End If
-Next
-For i = 0 To UBound(localVarNameList)
-    If UCase(localVarNameList(i)) = ucaseVN Then
-        Judge_constants_and_variables = 10000 + i: Exit Function
-    End If
-Next
+Private Function 打印动作列表() As String
+    Dim i As Long, j As Long
+    For i = 1 To UBound(actionList)
+        With actionList(i)
+            打印动作列表 = 打印动作列表 & "动作名(" & .name & "),"
+            For j = 0 To UBound(.nodeID)
+                打印动作列表 = 打印动作列表 & "节点(" & .nodeID(j) & ")|"
+            Next
+            打印动作列表 = Mid(打印动作列表, 1, Len(打印动作列表) - 1) & ",动作时间执行间隔(" & .interval & "),动作类型(" & .route & ")"
+            Select Case .route
+                Case "直线"
+                    打印动作列表 = 打印动作列表 & ",向量X(" & .vector.x & "),向量Y(" & .vector.y & ")"
+                Case "圆周"
+                    打印动作列表 = 打印动作列表 & ",角度(" & .angle & "),中心节点ID(" & .aimNode & ")"
+            End Select
+            打印动作列表 = 打印动作列表 & ",动作次数(" & .endTime & "),是否循环(" & .repeat & ")" & vbCrLf
+        End With
+    Next
 End Function
-Public Function LoadPublicVar()
-ReDim publicVarName(40)
-publicVarName(0) = "nSum"
-publicVarName(1) = "lSum"
-publicVarName(2) = "copyNSum"
-publicVarName(3) = "copyLSum"
-publicVarName(4) = "NodeInputBackColor"
-publicVarName(5) = "nodeEditLock"
-publicVarName(6) = "nodeEditFormLock"
-publicVarName(7) = "allNodeMoveLock"
-publicVarName(8) = "nodeMoveLock"
-publicVarName(9) = "regionalSelectLock"
-publicVarName(10) = "selectMoveLock"
-publicVarName(11) = "lineAddLock"
-publicVarName(12) = "mapMoveLock"
-publicVarName(13) = "mapGetMousePosLock"
-publicVarName(14) = "nodePrintBeLock"
-publicVarName(15) = "iconCompatible"
-publicVarName(16) = "lineAddSource"
-publicVarName(17) = "nodeEditAim"
-publicVarName(18) = "nodeMoveAim"
-publicVarName(19) = "nodeClickAim"
-publicVarName(20) = "nodeTargetAim"
-publicVarName(21) = "notePrintNodeId"
-publicVarName(22) = "bHLSum"
-publicVarName(23) = "redoSum"
-publicVarName(24) = "ntxPath"
-publicVarName(25) = "meExeId"
-publicVarName(26) = "behaviorId"
-publicVarName(27) = "redoId"
-publicVarName(28) = "ProfilePath"
-publicVarName(29) = "InstallPath"
-publicVarName(30) = "nodeEditPos"
-publicVarName(31) = "regionalSelectStart"
-publicVarName(32) = "allNodeMoveStart"
-publicVarName(33) = "nodeMoveStart"
-publicVarName(34) = "mousePos"
-publicVarName(35) = "mouseMapPos"
-publicVarName(36) = "lineAddStrat"
-publicVarName(37) = "mouseV3Pos"
-publicVarName(38) = "zoomFactor"
-publicVarName(39) = "magnification"
-publicVarName(40) = "MainFormFontSize"
-ReDim publicArrVarName(7)
-publicArrVarName(0) = "node"
-publicArrVarName(1) = "nodeLine"
-publicArrVarName(2) = "copyNodeList"
-publicArrVarName(3) = "copyLineList"
-publicArrVarName(4) = "copyNIdList"
-publicArrVarName(5) = "copyLIdList"
-publicArrVarName(6) = "behaviorList"
-publicArrVarName(7) = "redolist"
-ReDim publicFormName(5)
-publicFormName(0) = "Note"
-publicFormName(1) = "NoteControlDesk"
-publicFormName(2) = "NodePrint"
-publicFormName(3) = "NodeInput"
-publicFormName(4) = "NodeFind"
-publicFormName(5) = "AboutNote"
-ReDim ControlCharacter(5)
-ControlCharacter(0) = "="
-ControlCharacter(1) = "+"
-ControlCharacter(2) = "-"
-ControlCharacter(3) = "/"
-ControlCharacter(4) = "*"
-ControlCharacter(5) = "^"
-ReDim publicFunctionName(0)
-publicFunctionName(0) = "Msgbox"
+Private Function 启动动作时钟(c As String)
+    Note.ActionTimer.Enabled = 字符串转布尔值(c)
+End Function
+Private Function 设置动作更新速度(interval As Long)
+    Note.ActionTimer.interval = interval
+End Function
+Private Function 编辑连接(nS As Long, nT As Long, content As String, size As Single)
+    Dim i As Long
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b Then
+                If .Source = nS And .target = nT Then
+                    .content = 空格转义(content)
+                    .size = size
+                    Exit Function
+                End If
+            End If
+        End With
+    Next
+End Function
+Private Function 选中连接(allNid As String)
+    Dim allNidTemp() As String, i As Long, temp() As String
+    allNidTemp = Split(allNid, ",")
+    For i = 0 To UBound(allNidTemp)
+        If allNidTemp(i) <> "" Then
+            temp = Split(allNidTemp(i), ":")
+            nodeLine(LineAdd_RepeatedChecking(Val(temp(0)), Val(temp(1)))).select = True
+        End If
+    Next
+End Function
+Private Function 连接创建(nidA As Long, nidB As Long, content As String, size As Single, pichOn As String)
+    LineAdd nidA, nidB, 空格转义(content), size, 字符串转布尔值(pichOn), False
+End Function
+Private Function 选中节点(allNid As String)
+    Dim allNidTemp() As String, i As Long
+    allNidTemp = Split(allNid, ",")
+    For i = 0 To UBound(allNidTemp)
+        If allNidTemp(i) <> "" Then
+            node(Val(allNidTemp(i))).select = True
+        End If
+    Next
+End Function
+Private Function 删除节点(nid As String)
+    Dim allNidTemp() As String, i As Long
+    allNidTemp = Split(nid, ",")
+    For i = 0 To UBound(allNidTemp)
+        If allNidTemp(i) <> "" Then
+            NodeDelete Val(allNidTemp(i))
+        End If
+    Next
+End Function
+Private Function 位移节点(nid As Long, x As Single, y As Single)
+    With node(nid)
+        .x = x
+        .y = y
+    End With
+End Function
+Private Function 编辑节点(nid As Long, t As String, content As String, color As Long, size As Single)
+    NodeEdit_ReviseNode nid, 空格转义(t), 空格转义(content), color, size
+End Function
+Public Function 字符串转布尔值(s As String) As Boolean
+    If s = "1" Then
+        字符串转布尔值 = True
+    End If
+End Function
+Private Function 空格转义(s As String) As String
+    空格转义 = Replace(s, "\_", " ")
+End Function
+Private Function 节点创建(x As Single, y As Single, t As String, content As String, color As Long, size As Single, pichOn As String)
+    NodeEdit_NewNode 空格转义(t), 空格转义(content), color, size, x, y, 字符串转布尔值(pichOn)
+End Function
+Private Function 节点名序号索引(nodeName As String) As Long
+    Dim i As Long
+    节点名序号索引 = -1
+    For i = 0 To nSum
+        With node(i)
+            If .b Then
+                If nodeName = .t And .select = True Then
+                    节点名序号索引 = i
+                    Exit Function
+                End If
+            End If
+        End With
+    Next
+End Function
+Private Sub 节点放缩(centre As String, zoomX As Single, zoomY As Single)
+    Dim i As Long, iLock As Boolean, iX As Single, iY As Single, rootNid As Long
+    rootNid = 节点名序号索引(centre)
+    If rootNid <> -1 Then
+        With node(rootNid)
+                iX = .x * zoomX - .x
+                iY = .y * zoomY - .y
+        End With
+        For i = 0 To nSum
+            With node(i)
+                If .b Then
+                    If .select Then
+                        .x = .x * zoomX - iX
+                        .y = .y * zoomY - iY
+                    End If
+                End If
+            End With
+        Next
+    End If
+End Sub
+Private Function 字典打印(dic As Dictionary) As String
+    Dim i As Long
+    For i = 0 To dic.Count - 1
+        字典打印 = 字典打印 & dic.Keys(i) & ":" & dic.Items(i) & vbCrLf
+    Next
 End Function
 
+Private Sub 字典项增加(dS As String)
+    Dim dSTmp() As String, dTmp() As String
+    dSTmp = Split(dS, ",")
+    For i = 0 To UBound(dSTmp)
+        If dSTmp(i) <> "" Then
+            dTmp = Split(dSTmp(i), ":")
+            If Not userDic.Exists(dTmp(0)) Then userDic.Add dTmp(0), dTmp(1)
+        End If
+    Next
+End Sub
+
+Private Sub 阵列新增节点(xS As Single, xStep As Single, xE As Single, yS As Single, yStep As Single, yE As Single, t As String, c As String, p As String, size As Single, color As Long)
+    Dim x As Long, y As Long, m As Single, n As Single, pL As Boolean, dN As Long
+    If p = "1" Or UCase(p) = "TRUE" Then
+        pL = True
+    End If
+    For x = 1 To xE
+        For y = 1 To yE
+            dN = dN + 1
+            NodeEdit_NewNode 字典替换(t, dN, x, y), 字典替换(c, dN, x, y), color, size, xStep * (x - 1) + xS, yStep * (y - 1) + yS, pL
+        Next
+    Next
+End Sub
+
+Private Function 字典替换(ByVal s As String, dN As Long, dX As Long, dY As Long) As String
+    Dim dNT As String
+    dNT = dN + oneselfAddI
+    If userDic.Exists(dNT) Then
+        s = Replace(s, "[i]", userDic(dNT))
+    Else
+        s = Replace(s, "[i]", dNT)
+    End If
+    dNT = oneselfAddX + dX
+    If userDic.Exists(dNT) Then
+        s = Replace(s, "[x]", userDic(dNT))
+    Else
+        s = Replace(s, "[x]", dNT)
+    End If
+    dNT = oneselfAddY + dY
+    If userDic.Exists(dNT) Then
+        s = Replace(s, "[y]", userDic(dNT))
+    Else
+        s = Replace(s, "[y]", dNT)
+    End If
+    字典替换 = s
+End Function

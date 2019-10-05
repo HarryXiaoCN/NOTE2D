@@ -1,4 +1,31 @@
 Attribute VB_Name = "Note_Math"
+Public Sub NodeArray(nid As Long, r As Single)
+    Dim i As Long, aN As Long, ave As Single
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b Then
+                If .source = nid Then
+                    aN = aN + 1
+                End If
+            End If
+        End With
+    Next
+    If aN > 0 Then
+        ave = PI * 2 / aN
+        aN = 0
+        For i = 0 To lSum
+            With nodeLine(i)
+                If .b Then
+                    If .source = nid Then
+                        aN = aN + 1
+                        node(.target).x = Cos(ave * aN) * r + node(nid).x
+                        node(.target).y = Sin(ave * aN) * r + node(nid).y
+                    End If
+                End If
+            End With
+        Next
+    End If
+End Sub
 Public Function MToZF(ByRef mag As Single) As Single
 MToZF = 2 ^ mag
 End Function

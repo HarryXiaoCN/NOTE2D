@@ -1,5 +1,5 @@
 VERSION 5.00
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.ocx"
 Begin VB.Form NodeFind 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Node Find"
@@ -35,7 +35,7 @@ Begin VB.Form NodeFind
       _Version        =   393217
       ReadOnly        =   -1  'True
       Appearance      =   0
-      TextRTF         =   $"Note_NodeFind.frx":1084A
+      TextRTF         =   $"Note_NodeFind.frx":700A
    End
    Begin VB.Timer Timer1 
       Interval        =   1000
@@ -127,7 +127,7 @@ If 区分大小写.Checked = True Then 区分大小写.Checked = False Else 区分大小写.Che
 End Sub
 
 Private Sub 搜索_Click()
-FindNode FindText.Text, 区分大小写.Checked, 选中范围内搜索.Checked, 新文件中输出.Checked
+    FindNode FindText.Text, 区分大小写.Checked, 选中范围内搜索.Checked, 新文件中输出.Checked
 End Sub
 
 Private Sub 椭圆阵列_Click()
