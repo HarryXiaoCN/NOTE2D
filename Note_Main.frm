@@ -1,14 +1,14 @@
 VERSION 5.00
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.ocx"
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Note 
    Appearance      =   0  'Flat
    AutoRedraw      =   -1  'True
    BackColor       =   &H80000005&
    Caption         =   "Note"
    ClientHeight    =   9120
-   ClientLeft      =   120
-   ClientTop       =   765
+   ClientLeft      =   6375
+   ClientTop       =   3465
    ClientWidth     =   14760
    DrawWidth       =   2
    FillColor       =   &H00FFFF00&
@@ -29,7 +29,6 @@ Begin VB.Form Note
    OLEDropMode     =   1  'Manual
    ScaleHeight     =   9120
    ScaleWidth      =   14760
-   StartUpPosition =   2  '屏幕中心
    Begin VB.Timer ActionTimer 
       Enabled         =   0   'False
       Interval        =   10
@@ -211,7 +210,6 @@ Begin VB.Form Note
       _ExtentX        =   3625
       _ExtentY        =   873
       _Version        =   393217
-      Enabled         =   -1  'True
       Appearance      =   0
       TextRTF         =   $"Note_Main.frx":700A
    End
@@ -265,6 +263,7 @@ Begin VB.Form Note
       _ExtentX        =   6773
       _ExtentY        =   3096
       _Version        =   393217
+      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
@@ -1207,9 +1206,9 @@ Private Sub 保存笔记_Click()
     On Error GoTo Er
     If Dir(ntxPath) = "" Then
         filePath = 对话框选取保存文件路径("节点笔记 (*.ntx)|*.ntx|所有文件 (*.*)|*.*")
-        If filePath <> "" Then NoteFileWrite_202 filePath
+        If filePath <> "" Then NoteFileWrite_203 filePath
     Else
-        NoteFileWrite_202 ntxPath
+        NoteFileWrite_203 ntxPath
     End If
 
 Exit Sub
@@ -1565,7 +1564,7 @@ Private Sub 另存为_Click()
     Dim filePath As String
     On Error GoTo Er
     filePath = 对话框选取保存文件路径("节点笔记 (*.ntx)|*.ntx|所有文件 (*.*)|*.*")
-    If filePath <> "" Then NoteFileWrite_202 filePath
+    If filePath <> "" Then NoteFileWrite_203 filePath
     Exit Sub
 Er:
     MsgBox "另存为笔记失败，原因：" & Err.Description, 16, "另存为笔记"

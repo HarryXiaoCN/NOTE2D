@@ -11,12 +11,12 @@ Public Function 注册表注册(ByVal 注册表目录名 As String, ByVal 扩展名 As String)
             Do While Dir(InstallPath, vbDirectory) = ""
                 DoEvents
             Loop
-            Shell "cmd /c copy /Y """ & App.Path & "\" & App.EXEName & ".exe"" """ & InstallPath & App.EXEName & ".exe""", vbHide
-            FileCopy App.Path & "\Node Notes File Icon.ico ", InstallPath & "Node Notes File Icon.ico"
+            Shell "cmd /c copy /Y """ & App.path & "\" & App.EXEName & ".exe"" """ & InstallPath & App.EXEName & ".exe""", vbHide
+            FileCopy App.path & "\Node Notes File Icon.ico ", InstallPath & "Node Notes File Icon.ico"
         
             RegSetValue HKEY_CLASSES_ROOT, 扩展名, REG_SZ, 注册表目录名, 7
             RegSetValue HKEY_CLASSES_ROOT, 扩展名 & "ShellNew", REG_SZ, "", 0
-            NoteFileWrite_202 InstallPath & "新建节点文件.ntx"
+            NoteFileWrite_203 InstallPath & "新建节点文件.ntx"
             Shell "cmd /c reg add HKEY_CLASSES_ROOT\.ntx\ShellNew /v FileName /t REG_SZ /d " & InstallPath & "新建节点文件.ntx /f", vbHide
             RegSetValue HKEY_CLASSES_ROOT, 注册表目录名, REG_SZ, "Node Notes File", 15
             
@@ -39,9 +39,9 @@ Public Function 环境文件拷贝()
     On Error GoTo ErrHandler
     '    FileCopy App.Path & "\comdlg32.ocx", "C:\ProgramData\Note\comdlg32.ocx"
     '    FileCopy App.Path & "\RICHTX32.OCX", "C:\ProgramData\Note\RICHTX32.OCX"
-        Shell "cmd /c copy /Y """ & App.Path & "\comdlg32.ocx"" """ & Environ("SystemRoot") & "\System32\comdlg32.ocx""", vbHide
-        Shell "cmd /c copy /Y """ & App.Path & "\RICHTX32.OCX"" """ & Environ("SystemRoot") & "\System32\RICHTX32.ocx""", vbHide
-        Shell "cmd /c copy /Y """ & App.Path & "\RICHTX32.OCX"" """ & Environ("SystemRoot") & "\System32\MSWINSCK.OCX""", vbHide
+        Shell "cmd /c copy /Y """ & App.path & "\comdlg32.ocx"" """ & Environ("SystemRoot") & "\System32\comdlg32.ocx""", vbHide
+        Shell "cmd /c copy /Y """ & App.path & "\RICHTX32.OCX"" """ & Environ("SystemRoot") & "\System32\RICHTX32.ocx""", vbHide
+        Shell "cmd /c copy /Y """ & App.path & "\RICHTX32.OCX"" """ & Environ("SystemRoot") & "\System32\MSWINSCK.OCX""", vbHide
         Shell "regsvr32 /s c:\Windows\System32\comdlg32.ocx", vbHide
         Shell "regsvr32 /s c:\Windows\System32\RICHTX32.ocx", vbHide
         Shell "regsvr32 /s c:\Windows\System32\MSWINSCK.OCX", vbHide

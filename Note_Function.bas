@@ -7,8 +7,8 @@ Public Function NodePositionVague(vT As Single, Optional allNode As Boolean)
         With node(i)
             If .b Then
                 If .select = True Or allNode = True Then
-                    .x = (.x \ vT) * vT
-                    .y = (.y \ vT) * vT
+                    .X = (.X \ vT) * vT
+                    .Y = (.Y \ vT) * vT
                 End If
             End If
         End With
@@ -63,7 +63,7 @@ Note.GlobalView.Visible = bool
 End Function
 Public Function IconSet(ByRef formObj As Form)
 On Error GoTo Er:
-formObj.Icon = LoadPicture(App.Path & "\note.ico")
+formObj.Icon = LoadPicture(App.path & "\note.ico")
 formObj.Show
 Exit Function
 Er:
@@ -132,7 +132,7 @@ If newNoteOutput = True And fNSum > 0 Then
 End If
 End Function
 Public Function FindNode_NewNoteOutput(ByRef fNSum As Long, ByRef findStr As String)
-Dim tempFilePath As String: Dim i, j As Long: Dim angle As Single, fileName As Integer
+Dim tempFilePath As String: Dim i, j As Long: Dim angle As Single, filename As Integer
 Dim fN() As 节点: Dim fL() As 连接: Dim fLSum As Long: Dim ntx
 'tempFilePath = App.Path & "\" & App.EXEName & "_FindTemp.ntx"
 tempFilePath = ntxPath & "~FT.ntx"
@@ -164,18 +164,18 @@ With fN(0)
     .t = findStr
     .setSize = nodeDefaultSize
     .setColor = &HFFBF00
-    .x = Note.width / 2
-    .y = Note.height / 2
+    .X = Note.width / 2
+    .Y = Note.height / 2
 End With
-ntx = NoteFileWrite_202_Coding(fN, fNSum, fL, fLSum)
-fileName = FreeFile
-Open tempFilePath For Output As #fileName
+ntx = NoteFileWrite_203_Coding(fN, fNSum, fL, fLSum)
+filename = FreeFile
+Open tempFilePath For Output As #filename
     For i = 0 To UBound(ntx)
-        Print #fileName, ntx(i)
+        Print #filename, ntx(i)
     Next
-Close #fileName
+Close #filename
 'Shell "C:\ProgramData\Note\Note2D.exe " & tempFilePath, vbNormalFocus
-Shell """" & App.Path & "\" & App.EXEName & ".exe"" " & tempFilePath, vbNormalFocus
+Shell """" & App.path & "\" & App.EXEName & ".exe"" " & tempFilePath, vbNormalFocus
 Kill tempFilePath
 End Function
 Public Sub NodeListVisUpdata()
@@ -219,29 +219,29 @@ Public Function RollerEventHandling(ByRef narrow As Boolean)
 End Function
 Public Function MainCoordinateSystemZero(ByRef mousePrimaryPos As 三维坐标)
 Dim dX As Single: Dim dY As Single
-MapUpdata_AoVMove_Moving -mousePrimaryPos.x, -mousePrimaryPos.y
+MapUpdata_AoVMove_Moving -mousePrimaryPos.X, -mousePrimaryPos.Y
 End Function
 Public Function MainCoordinateSystemDefinition()
     Note.Scale (0, Note.height * zoomFactor)-(Note.width * zoomFactor, 0)
 End Function
 Public Function MainCoordinateSystemReduction(ByRef mousePrimaryPos As 三维坐标, ByRef oldZF As Single)
 Dim dX As Single: Dim dY As Single
-dX = mousePrimaryPos.x / mousePrimaryPos.z * (zoomFactor - oldZF)
-dY = mousePrimaryPos.y / mousePrimaryPos.z * (zoomFactor - oldZF)
+dX = mousePrimaryPos.X / mousePrimaryPos.z * (zoomFactor - oldZF)
+dY = mousePrimaryPos.Y / mousePrimaryPos.z * (zoomFactor - oldZF)
 'MapUpdata_AoVMove_Moving mousePrimaryPos.x + dx, mousePrimaryPos.y + dy
 MapUpdata_AoVMove_Moving dX, dY
 End Function
 Public Function FindNode_NewNoteOutput_CircularArray(ByRef arrayObj As 节点, ByRef arrAngle As Single, ByRef fNSum As Long)
 If arrAngle > PI / 2 Then
     arrAngle = PI - arrAngle
-    arrayObj.x = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
+    arrayObj.X = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
 Else
-    arrayObj.x = 300 * fNSum * Cos(arrAngle) + Note.width / 2
+    arrayObj.X = 300 * fNSum * Cos(arrAngle) + Note.width / 2
 End If
 If NodeFind.圆形阵列.Checked = True Then
-    arrayObj.y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.Y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
 Else
-    arrayObj.y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.Y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
 End If
 End Function
 
@@ -317,12 +317,15 @@ Public Function PasteObject()
         Case 202
             ntx = PasteObject_GetNtx(listStr)
             NoteFileRead_202 ntx, True
+        Case 203
+            ntx = PasteObject_GetNtx(listStr)
+            NoteFileRead_203 ntx, True
         Case Else
             GoTo Er
     End Select
     Exit Function
 Er:
-    NodeEdit_NewNode "", pasteStr, &HFFBF00, nodeDefaultSize, mousePos.x, mousePos.y
+    NodeEdit_NewNode "", pasteStr, &HFFBF00, nodeDefaultSize, mousePos.X, mousePos.Y
 End Function
 Public Function PasteObject_GetNtx(ByRef listStr)
 Dim i As Long: Dim ntx() As String
@@ -334,6 +337,8 @@ PasteObject_GetNtx = ntx
 End Function
 Public Function PasteObject_NtxFileCheck(ByVal linStr As String) As Long
 If InStr(1, linStr, VERSIONID) Then
+    PasteObject_NtxFileCheck = 203
+ElseIf InStr(1, linStr, "Note2D_2") Then
     PasteObject_NtxFileCheck = 202
 Else
     PasteObject_NtxFileCheck = -1
@@ -341,10 +346,10 @@ End If
 End Function
 Public Function PasteObject_Local_Node()
 Dim i As Long: Dim firstPos As 二维坐标
-firstPos.x = node(copyNIdList(0)).x: firstPos.y = node(copyNIdList(0)).y
+firstPos.X = node(copyNIdList(0)).X: firstPos.Y = node(copyNIdList(0)).Y
 For i = 0 To copyNSum - 1
     With node(copyNIdList(i))
-        NodeEdit_NewNode .t, .content, .setColor, .setSize, .x - firstPos.x + mousePos.x, .y - firstPos.y + mousePos.y, True
+        NodeEdit_NewNode .t, .content, .setColor, .setSize, .X - firstPos.X + mousePos.X, .Y - firstPos.Y + mousePos.Y, True
     End With
 Next
 End Function
@@ -359,7 +364,7 @@ End Function
 Public Function CopyObject_Coding()
 Dim ntx: Dim copyStr As String: Dim i As Long
 'ReDim ntx(copyNSum + copyLSum + 1)
-ntx = NoteFileWrite_202_Coding(copyNodeList, copyNSum, copyLineList, copyLSum)
+ntx = NoteFileWrite_203_Coding(copyNodeList, copyNSum, copyLineList, copyLSum)
 copyStr = meExeId & COPYLINEBREAK
 For i = 0 To copyNSum + copyLSum
     copyStr = copyStr & ntx(i) & COPYLINEBREAK
@@ -369,7 +374,7 @@ Clipboard.SetText copyStr
 End Function
 Public Function CopyObject_Line(ByRef delSoure As Boolean)
 Dim i As Long
-ReDim copyLineList(lSum): ReDim copyLIdList(nSum)
+ReDim copyLineList(lSum): ReDim copyLIdList(lSum)
 copyLSum = 0
 For i = 0 To lSum
     With nodeLine(i)
@@ -396,16 +401,18 @@ For i = 0 To nSum
             If .select = True Or i = nodeTargetAim Then
                 copyNIdList(copyNSum) = i
                 If copyNSum = 0 Then
-                    firstPos.x = .x: firstPos.y = .y
-                    copyNodeList(copyNSum).x = 0
-                    copyNodeList(copyNSum).y = 0
+                    firstPos.X = .X: firstPos.Y = .Y
+                    copyNodeList(copyNSum).X = 0
+                    copyNodeList(copyNSum).Y = 0
                 Else
-                    copyNodeList(copyNSum).x = .x - firstPos.x
-                    copyNodeList(copyNSum).y = .y - firstPos.y
+                    copyNodeList(copyNSum).X = .X - firstPos.X
+                    copyNodeList(copyNSum).Y = .Y - firstPos.Y
                 End If
                 copyNodeList(copyNSum).b = True
                 copyNodeList(copyNSum).t = .t
                 copyNodeList(copyNSum).content = .content
+                copyNodeList(copyNSum).setColor = .setColor
+                copyNodeList(copyNSum).setSize = .setSize
                 copyNSum = copyNSum + 1
                 If delSoure = True Then .b = False
             End If
@@ -485,7 +492,7 @@ End Select
 End Function
 Public Function DirectSelect()
 Dim aim, i As Long
-aim = NodeCheck(mousePos.x, mousePos.y)
+aim = NodeCheck(mousePos.X, mousePos.Y)
 If aim = -1 Then Exit Function
 node(aim).select = True
 For i = 0 To lSum

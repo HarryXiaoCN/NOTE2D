@@ -39,8 +39,8 @@ Public Function ChildNoteFileRead_202(ntx() As String, pic As PictureBox)
         ReDim childNode(nodeSum - 1)
         For i = 1 To nodeSum
             lineTmp = Split(ntx(i), LINEBREAK)
-            childNode(i - 1).x = Val(lineTmp(0))
-            childNode(i - 1).y = Val(lineTmp(1))
+            childNode(i - 1).X = Val(lineTmp(0))
+            childNode(i - 1).Y = Val(lineTmp(1))
             childNode(i - 1).t = lineTmp(2)
             childNode(i - 1).setColor = Val(lineTmp(4))
             childNode(i - 1).setSize = Val(lineTmp(5))
@@ -49,7 +49,7 @@ Public Function ChildNoteFileRead_202(ntx() As String, pic As PictureBox)
             ReDim childLine(lineSum - 1)
             For i = nodeSum + 1 To nodeSum + lineSum
                 lineTmp = Split(ntx(i), LINEBREAK)
-                childLine(i - nodeSum - 1).source = Val(lineTmp(0))
+                childLine(i - nodeSum - 1).Source = Val(lineTmp(0))
                 childLine(i - nodeSum - 1).target = Val(lineTmp(1))
                 If UBound(lineTmp) > 2 Then
                     childLine(i - nodeSum - 1).content = lineTmp(2)
@@ -57,44 +57,44 @@ Public Function ChildNoteFileRead_202(ntx() As String, pic As PictureBox)
                 End If
             Next
         End If
-        picMinX = childNode(0).x
-        picMinY = childNode(0).y
+        picMinX = childNode(0).X
+        picMinY = childNode(0).Y
         For i = 0 To UBound(childNode)
             With childNode(i)
-                If .x < picMinX Then
-                    picMinX = .x
-                ElseIf .x > picMaxX Then
-                    picMaxX = .x
+                If .X < picMinX Then
+                    picMinX = .X
+                ElseIf .X > picMaxX Then
+                    picMaxX = .X
                 End If
-                If .y < picMinY Then
-                    picMinY = .y
-                ElseIf .y > picMaxY Then
-                    picMaxY = .y
+                If .Y < picMinY Then
+                    picMinY = .Y
+                ElseIf .Y > picMaxY Then
+                    picMaxY = .Y
                 End If
             End With
         Next
         dX = 3000 - picMinX
         dY = 3000 - picMinY
         
-        pic.Width = picMaxX + 3000 + dX
-        pic.Height = picMaxY + 3000 + dY
+        pic.width = picMaxX + 3000 + dX
+        pic.height = picMaxY + 3000 + dY
         
-        pic.Scale (0, pic.Height)-(pic.Width, 0)
+        pic.Scale (0, pic.height)-(pic.width, 0)
         
         For i = 0 To UBound(childNode)
             With childNode(i)
-                .x = .x + dX
-                .y = .y + dY
+                .X = .X + dX
+                .Y = .Y + dY
             End With
         Next
         If lineSum > 0 Then
             For i = 0 To UBound(childLine)
                 With childLine(i)
                     pic.DrawWidth = .size
-                    midX = (childNode(.target).x - childNode(.source).x) / 3 * 2 + childNode(.source).x
-                    midY = (childNode(.target).y - childNode(.source).y) / 3 * 2 + childNode(.source).y
-                    pic.Line (childNode(.source).x, childNode(.source).y)-(midX, midY), childNode(.source).setColor
-                    pic.Line (midX, midY)-(childNode(.target).x, childNode(.target).y), childNode(.target).setColor
+                    midX = (childNode(.target).X - childNode(.Source).X) / 3 * 2 + childNode(.Source).X
+                    midY = (childNode(.target).Y - childNode(.Source).Y) / 3 * 2 + childNode(.Source).Y
+                    pic.Line (childNode(.Source).X, childNode(.Source).Y)-(midX, midY), childNode(.Source).setColor
+                    pic.Line (midX, midY)-(childNode(.target).X, childNode(.target).Y), childNode(.target).setColor
                     pic.CurrentX = midX
                     pic.CurrentY = midY
                     pic.Print .content
@@ -104,9 +104,9 @@ Public Function ChildNoteFileRead_202(ntx() As String, pic As PictureBox)
         For i = 0 To UBound(childNode, 1)
             With childNode(i)
                 pic.FillColor = .setColor
-                pic.Circle (.x, .y), .setSize, .setColor
-                pic.CurrentX = .x
-                pic.CurrentY = .y
+                pic.Circle (.X, .Y), .setSize, .setColor
+                pic.CurrentX = .X
+                pic.CurrentY = .Y
                 pic.Print .t
             End With
         Next
@@ -130,7 +130,7 @@ Public Function ChildNodeFileRead(filePath As String, ntx() As String) As Boolea
     Close #fN
     version = NoteFileRead_VersionCheck(ntx(0))
     Select Case version
-        Case 202
+        Case 202, 203
             ChildNodeFileRead = True
     End Select
 End Function

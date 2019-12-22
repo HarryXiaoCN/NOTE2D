@@ -79,10 +79,11 @@ Public Function Fictitious_NoteFileRead(ficNote As 虚拟笔记, filePath As String)
                     i = i + 1
                 Loop
         Close #1
-        If NoteFileRead_VersionCheck(ntx(0)) = 202 Then
+        Select Case NoteFileRead_VersionCheck(ntx(0))
+            Case 202, 203
             Fictitious_NoteFileRead_202 ficNote, ntx
             ficNote.be = True
-        End If
+        End Select
     Exit Function
 Er:
     Debug.Print "文件读取失败，原因：" & Err.Description

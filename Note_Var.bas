@@ -10,6 +10,8 @@ Public nodeDefaultSize As Single
 Public lineDefaultSize As Single
 Public nodeInputFormHeight As Single
 Public nodeInputFormWidth As Single
+Public nodeInputFormTop As Single
+Public nodeInputFormLeft As Single
 
 Public 节点列表更新锁 As Boolean
 Public 连接列表更新锁 As Boolean
@@ -95,7 +97,7 @@ Public treeTxtToNtx_StartX As Single, treeTxtToNtx_StartY As Single, treeTxtToNt
 Public imageToNtx_StartX As Single, imageToNtx_StartY As Single, imageToNtx_StepX As Single, imageToNtx_StepY As Single
 
 Public Const PI As Double = 3.14159265358979
-Public Const VERSIONID As String = "Note2D_2"
+Public Const VERSIONID As String = "Note2D_3"
 Public Const NOTEFORMNAME As String = "节点笔记 - "
 Public LINEBREAK As String
 Public COPYLINEBREAK As String
@@ -134,7 +136,7 @@ End Sub
 
 Public Sub PublicVarLoad2()
     imageToNtx_StartX = 100
-    imageToNtx_StartY = note.height
+    imageToNtx_StartY = Note.height
     imageToNtx_StepX = 600
     imageToNtx_StepY = -600
 End Sub

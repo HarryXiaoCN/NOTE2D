@@ -1,14 +1,14 @@
 VERSION 5.00
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.ocx"
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form NodeInput 
    Appearance      =   0  'Flat
    AutoRedraw      =   -1  'True
    BackColor       =   &H80000005&
    Caption         =   "Node Edit"
    ClientHeight    =   8865
-   ClientLeft      =   165
-   ClientTop       =   855
+   ClientLeft      =   225
+   ClientTop       =   870
    ClientWidth     =   6240
    FillColor       =   &H80000002&
    FillStyle       =   0  'Solid
@@ -50,6 +50,7 @@ Begin VB.Form NodeInput
       _ExtentX        =   10583
       _ExtentY        =   13705
       _Version        =   393217
+      Enabled         =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
       AutoVerbMenu    =   -1  'True
@@ -515,13 +516,15 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private inputBoxContent As String, synchronizationState As String
-Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     Label1.FontBold = True
 End Sub
 
 Private Sub Form_Load()
     Me.height = nodeInputFormHeight
     Me.width = nodeInputFormWidth
+    Me.Top = nodeInputFormTop
+    Me.left = nodeInputFormLeft
     nodeEditFormLock = True
     节点选中色 = 17
     Me.BackColor = NodeInputBackColor
@@ -547,6 +550,8 @@ Private Sub Form_Resize()
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
+    nodeInputFormTop = Me.Top
+    nodeInputFormLeft = Me.left
     nodeEditFormLock = False
 End Sub
 
@@ -625,9 +630,9 @@ Private Sub 保存_Click()
     Else
         If NodeEdit_ContentFilter(NodeInputBox.Text) Then
             NodeInputBox.Text = ""
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
+            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
         Else
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
+            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
         End If
     End If
     If 节点同步内容(0).Checked = True Or 节点同步内容(1).Checked = True Or 节点同步内容(2).Checked = True Or 节点同步内容(3).Checked = True Then
