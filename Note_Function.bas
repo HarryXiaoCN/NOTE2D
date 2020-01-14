@@ -213,23 +213,18 @@ Public Function RollerEventHandling(ByRef narrow As Boolean)
     End If
     zoomFactor = MToZF(magnification)
     MainCoordinateSystemDefinition
-    MainCoordinateSystemReduction mousePrimaryPos, oldZF
+'    MainCoordinateSystemReduction mousePrimaryPos, oldZF
     放缩率需要提示提示倒计时 = 2
-
-End Function
-Public Function MainCoordinateSystemZero(ByRef mousePrimaryPos As 三维坐标)
-Dim dX As Single: Dim dY As Single
-MapUpdata_AoVMove_Moving -mousePrimaryPos.X, -mousePrimaryPos.Y
 End Function
 Public Function MainCoordinateSystemDefinition()
-    Note.Scale (0, Note.height * zoomFactor)-(Note.width * zoomFactor, 0)
+    Note.Scale (-angleOfView.X, Note.height * zoomFactor - angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, -angleOfView.Y)
 End Function
 Public Function MainCoordinateSystemReduction(ByRef mousePrimaryPos As 三维坐标, ByRef oldZF As Single)
-Dim dX As Single: Dim dY As Single
-dX = mousePrimaryPos.X / mousePrimaryPos.z * (zoomFactor - oldZF)
-dY = mousePrimaryPos.Y / mousePrimaryPos.z * (zoomFactor - oldZF)
-'MapUpdata_AoVMove_Moving mousePrimaryPos.x + dx, mousePrimaryPos.y + dy
-MapUpdata_AoVMove_Moving dX, dY
+'    angleOfView.X = mousePrimaryPos.X / mousePrimaryPos.z * (zoomFactor - oldZF)
+'    angleOfView.Y = mousePrimaryPos.Y / mousePrimaryPos.z * (zoomFactor - oldZF)
+    angleOfView.X = mousePrimaryPos.X * (zoomFactor - oldZF)
+    angleOfView.Y = mousePrimaryPos.Y * (zoomFactor - oldZF)
+    MainCoordinateSystemDefinition
 End Function
 Public Function FindNode_NewNoteOutput_CircularArray(ByRef arrayObj As 节点, ByRef arrAngle As Single, ByRef fNSum As Long)
 If arrAngle > PI / 2 Then

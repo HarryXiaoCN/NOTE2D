@@ -8,11 +8,23 @@ Public Function 子节点检查(nC As String) As Boolean
         If Dir(sT) <> "" Then
             childNodeVisNtxPath = sT
             子节点检查 = 子节点书写(sT, Note.子节点视图)
+        ElseIf Dir(ntxPathNoName & "\" & sT) <> "" Then
+            childNodeVisNtxPath = ntxPathNoName & "\" & sT
+            子节点检查 = 子节点书写(sT, Note.子节点视图)
         End If
     End If
 Er:
 End Function
-
+Public Function 去除路径文件名(s As String) As String
+    Dim sT() As String
+    On Error GoTo Er
+        sT = Split(s, "\")
+        ReDim Preserve sT(UBound(sT) - 1)
+        去除路径文件名 = Join(sT, "\")
+    Exit Function
+Er:
+    Debug.Print "去除路径文件名"; s
+End Function
 Public Function 子节点书写(nFP As String, pic As PictureBox) As Boolean
     Dim ntx() As String
     On Error GoTo Er

@@ -112,12 +112,12 @@ ElseIf InStr(1, lineTmp, "绘图间隔=") Then
     Note.MainTime.interval = Note.updataSpeed
 ElseIf InStr(1, lineTmp, "矩线颜色=") Then
     rectangleLineColor = Val(ESRStr)
-ElseIf InStr(1, lineTmp, "矩线步长=") Then
-    rectangleStep = Val(ESRStr)
 ElseIf InStr(1, lineTmp, "节点归整长度=") Then
     nodeAttributedToIntegers = Val(ESRStr)
 ElseIf InStr(1, lineTmp, "节点归整=") Then
     Note.节点归整.Checked = ESRBool
+ElseIf InStr(1, lineTmp, "精简内容=") Then
+    Note.精简内容.Checked = ESRBool
 ElseIf InStr(1, lineTmp, "长=") Then
     Note.width = Val(ESRStr)
 ElseIf InStr(1, lineTmp, "宽=") Then
@@ -156,7 +156,7 @@ profileStr = "-视图-" & vbCrLf _
 & vbCrLf & "倾斜=" & Note.Font.Italic _
 & vbCrLf & SaveProfile_GetTrueTransparentViewName _
 & vbCrLf & "主界面背景色=" & Note.BackColor & vbCrLf & "背景图路径=" & Note.homeBackPicPath _
-& vbCrLf & "主界面字体颜色=" & Note.ForeColor _
+& vbCrLf & "主界面字体颜色=" & Note.ForeColor & vbCrLf & "精简内容=" & Note.精简内容.Checked _
 & vbCrLf & "矩点=" & Note.矩点.Checked & vbCrLf & "矩线=" & Note.矩线.Checked _
 & vbCrLf & "彩虹圈=" & Note.彩虹圈.Checked _
 & vbCrLf & "彩虹线=" & Note.彩虹线.Checked _
@@ -169,7 +169,6 @@ profileStr = "-视图-" & vbCrLf _
 & vbCrLf & "自动保存时间间隔=" & saveNtxTime & vbCrLf & "绘图间隔=" & Note.updataSpeed & vbCrLf & "节点默认大小=" & nodeDefaultSize & vbCrLf & "连接默认宽度=" & lineDefaultSize & vbCrLf
 profileStr = profileStr & "-系统-" & vbCrLf _
 & vbCrLf & "矩线颜色=" & rectangleLineColor _
-& vbCrLf & "矩线步长=" & rectangleStep _
 & vbCrLf & "节点归整长度=" & nodeAttributedToIntegers _
 & vbCrLf & "节点归整=" & Note.节点归整.Checked _
 & vbCrLf & "长=" & Note.width _
@@ -229,6 +228,7 @@ Dim ntx() As String: Dim i As Long, version As Long
 newAddNote
 On Error GoTo Er
     ntxPath = filePath
+    ntxPathNoName = 去除路径文件名(ntxPath)
     Note.Caption = NOTEFORMNAME & ntxPath
     Open filePath For Input As #1
             Do While Not EOF(1)
@@ -454,6 +454,7 @@ End Function
 Public Function NoteFileWrite_203(ByRef filePath As String)
     Dim ntx() As String: Dim i As Long, fN As Integer
     ntxPath = filePath
+    ntxPathNoName = 去除路径文件名(ntxPath)
     Note.Caption = NOTEFORMNAME & ntxPath
     ntx = NoteFileWrite_203_Coding(node, nSum, nodeLine, lSum)
     lastNtx = ntx
@@ -506,6 +507,7 @@ noteArrInitialization
 nSum = 0: lSum = 0: bHLSum = 0: magnification = 0: zoomFactor = 1
 Note.GlobalView.Cls
 ntxPath = App.path & "\新建节点笔记.ntx"
+ntxPathNoName = 去除路径文件名(ntxPath)
 Note.Caption = NOTEFORMNAME & ntxPath
 MainCoordinateSystemDefinition
 Note.MainTime.Enabled = True

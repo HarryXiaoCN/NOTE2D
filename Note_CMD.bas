@@ -26,7 +26,6 @@ Private Function CMD_LineExecute(cmd As String) As String
                             & vbCrLf & "打印重做列表[PRINTREDO]" _
                             & vbCrLf & "设置树状文本导入位置控制常数[SETTREETXTINPOSCONTROLCONST/STTIPCC/STIPC] 根节点X(数值) 根节点Y(数值) 节点X间隔(数值) 节点Y间隔(数值)" _
                             & vbCrLf & "设置位图导入位置控制常数[SETIMAGEINPOSCONTROLCONST/SIIPCC/SIPC] 根节点X(数值) 根节点Y(数值) 节点X间隔(数值) 节点Y间隔(数值)" _
-                            & vbCrLf & "矩线间隔[RECTANGLESTEP/RECSTEP] 步长(数值)" _
                             & vbCrLf & "矩线颜色[RECTANGLECOLOR/RECCOLOR] VBColor(数值)[RColor(数值) GColor(数值) BColor(数值)]" _
                             & vbCrLf & "节点放缩[NODEZOOM] 基点节点名(字符串) X轴放缩倍数(数值) Y轴放缩倍数(数值)" _
                             & vbCrLf & "创建节点[NEWBUILTNODE/NBN] X位置(数值) Y位置(数值) 标题(字符串) 内容(字符串) VBColor(数值) 大小(数值) 选中(0/1)" _
@@ -89,9 +88,6 @@ Private Function CMD_LineExecute(cmd As String) As String
             imageToNtx_StartY = Val(cT(2))
             imageToNtx_StepX = Val(cT(3))
             imageToNtx_StepY = Val(cT(4))
-            GoTo Success
-        Case "矩线间隔", "RECTANGLESTEP", "RECSTEP"
-            rectangleStep = Val(cT(1))
             GoTo Success
         Case "矩线颜色", "RECTANGLECOLOR", "RECCOLOR"
             If UBound(cT) > 2 Then
@@ -166,7 +162,7 @@ Private Function 打印可执行动作列表() As String
             打印可执行动作列表 = Mid(打印可执行动作列表, 1, Len(打印可执行动作列表) - 1) & "," & .interval & "," & .route
             Select Case .route
                 Case "直线"
-                    打印可执行动作列表 = 打印可执行动作列表 & "," & .vector.x & "," & .vector.y
+                    打印可执行动作列表 = 打印可执行动作列表 & "," & .vector.X & "," & .vector.Y
                 Case "圆周"
                     打印可执行动作列表 = 打印可执行动作列表 & "," & .angle & "," & .aimNode
             End Select
@@ -185,7 +181,7 @@ Private Function 打印动作列表() As String
             打印动作列表 = Mid(打印动作列表, 1, Len(打印动作列表) - 1) & ",动作时间执行间隔(" & .interval & "),动作类型(" & .route & ")"
             Select Case .route
                 Case "直线"
-                    打印动作列表 = 打印动作列表 & ",向量X(" & .vector.x & "),向量Y(" & .vector.y & ")"
+                    打印动作列表 = 打印动作列表 & ",向量X(" & .vector.X & "),向量Y(" & .vector.Y & ")"
                 Case "圆周"
                     打印动作列表 = 打印动作列表 & ",角度(" & .angle & "),中心节点ID(" & .aimNode & ")"
             End Select
@@ -244,10 +240,10 @@ Private Function 删除节点(nid As String)
         End If
     Next
 End Function
-Private Function 位移节点(nid As Long, x As Single, y As Single)
+Private Function 位移节点(nid As Long, X As Single, Y As Single)
     With node(nid)
-        .x = x
-        .y = y
+        .X = X
+        .Y = Y
     End With
 End Function
 Private Function 编辑节点(nid As Long, t As String, content As String, color As Long, size As Single)
@@ -261,8 +257,8 @@ End Function
 Private Function 空格转义(s As String) As String
     空格转义 = Replace(s, "\_", " ")
 End Function
-Private Function 节点创建(x As Single, y As Single, t As String, content As String, color As Long, size As Single, pichOn As String)
-    NodeEdit_NewNode 空格转义(t), 空格转义(content), color, size, x, y, 字符串转布尔值(pichOn)
+Private Function 节点创建(X As Single, Y As Single, t As String, content As String, color As Long, size As Single, pichOn As String)
+    NodeEdit_NewNode 空格转义(t), 空格转义(content), color, size, X, Y, 字符串转布尔值(pichOn)
 End Function
 Private Function 节点名序号索引(nodeName As String) As Long
     Dim i As Long
@@ -283,15 +279,15 @@ Private Sub 节点放缩(centre As String, zoomX As Single, zoomY As Single)
     rootNid = 节点名序号索引(centre)
     If rootNid <> -1 Then
         With node(rootNid)
-                iX = .x * zoomX - .x
-                iY = .y * zoomY - .y
+                iX = .X * zoomX - .X
+                iY = .Y * zoomY - .Y
         End With
         For i = 0 To nSum
             With node(i)
                 If .b Then
                     If .select Then
-                        .x = .x * zoomX - iX
-                        .y = .y * zoomY - iY
+                        .X = .X * zoomX - iX
+                        .Y = .Y * zoomY - iY
                     End If
                 End If
             End With
@@ -317,14 +313,14 @@ Private Sub 字典项增加(dS As String)
 End Sub
 
 Private Sub 阵列新增节点(xS As Single, xStep As Single, xE As Single, yS As Single, yStep As Single, yE As Single, t As String, c As String, p As String, size As Single, color As Long)
-    Dim x As Long, y As Long, m As Single, n As Single, pL As Boolean, dN As Long
+    Dim X As Long, Y As Long, m As Single, n As Single, pL As Boolean, dN As Long
     If p = "1" Or UCase(p) = "TRUE" Then
         pL = True
     End If
-    For x = 1 To xE
-        For y = 1 To yE
+    For X = 1 To xE
+        For Y = 1 To yE
             dN = dN + 1
-            NodeEdit_NewNode 字典替换(t, dN, x, y), 字典替换(c, dN, x, y), color, size, xStep * (x - 1) + xS, yStep * (y - 1) + yS, pL
+            NodeEdit_NewNode 字典替换(t, dN, X, Y), 字典替换(c, dN, X, Y), color, size, xStep * (X - 1) + xS, yStep * (Y - 1) + yS, pL
         Next
     Next
 End Sub

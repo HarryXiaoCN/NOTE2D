@@ -1,12 +1,12 @@
 VERSION 5.00
-Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.ocx"
+Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
 Begin VB.Form NodeListVis 
    Appearance      =   0  'Flat
    BackColor       =   &H80000005&
    Caption         =   "节点列表"
    ClientHeight    =   5220
-   ClientLeft      =   165
-   ClientTop       =   855
+   ClientLeft      =   225
+   ClientTop       =   870
    ClientWidth     =   4080
    Icon            =   "NodeListVis.frx":0000
    LinkTopic       =   "Form1"
@@ -23,7 +23,6 @@ Begin VB.Form NodeListVis
       _ExtentX        =   3413
       _ExtentY        =   661
       _Version        =   393217
-      Enabled         =   -1  'True
       Appearance      =   0
       TextRTF         =   $"NodeListVis.frx":700A
    End
@@ -63,9 +62,9 @@ End Sub
 Private Sub 节点列表_DblClick()
     Dim d As 二维坐标
     If 节点列表.Text <> "" Then
-        d.x = Note.Width / 2 - node(节点列表.ListIndex).x
-        d.y = Note.Height / 2 - node(节点列表.ListIndex).y
-        Updata_AllNodeMove_Moving d.x, d.y, False
+        angleOfView.X = Note.width / 2 - node(节点列表.ListIndex).X
+        angleOfView.Y = Note.height / 2 - node(节点列表.ListIndex).Y
+        MainCoordinateSystemDefinition
     End If
 End Sub
 

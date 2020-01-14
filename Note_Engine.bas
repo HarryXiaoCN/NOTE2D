@@ -1,4 +1,5 @@
 Attribute VB_Name = "Note_Engine"
+Private midNodeAT As Single, contentTemp As String
 Sub Main()
     PublicVarLoad
     On Error GoTo Er
@@ -16,7 +17,7 @@ Public Function Updata()
         Updata_GetNodeTargetAim
         Updata_NodeMove
         Updata_SelectMove
-        Updata_AllNodeMove
+'        Updata_AllNodeMove
         Updata_NodeLine
         Updata_Node
         Updata_FictitiousIndex
@@ -62,14 +63,18 @@ End Sub
 
 Public Sub Updata_RectangleLine()
     If Note.矩线.Checked Then
-        Dim i As Long, height As Single, width As Single
+        Dim i As Long, height As Single, width As Single, lowW As Long, lowH As Long
         height = Note.height * zoomFactor
         width = Note.width * zoomFactor
-        For i = 0 To height Step rectangleStep
-            Note.Line (0, i)-(width, i), rectangleLineColor
+        
+        lowW = (-angleOfView.X \ nodeAttributedToIntegers - 1) * nodeAttributedToIntegers
+        lowH = (-angleOfView.Y \ nodeAttributedToIntegers - 1) * nodeAttributedToIntegers
+        
+        For i = lowH To height - angleOfView.Y Step nodeAttributedToIntegers
+            Note.Line (-angleOfView.X, i)-(width - angleOfView.X, i), rectangleLineColor
         Next
-        For i = 0 To width Step rectangleStep
-            Note.Line (i, 0)-(i, height), rectangleLineColor
+        For i = lowW To width - angleOfView.X Step nodeAttributedToIntegers
+            Note.Line (i, -angleOfView.Y)-(i, height - angleOfView.Y), rectangleLineColor
         Next
     End If
 End Sub
@@ -86,7 +91,7 @@ Public Function Updata_ColorUpdata()
 End Function
 Public Function Updata_pilotLightColor()
     Note.DrawWidth = 1
-    Note.Line (Note.pilotLightX0 * zoomFactor, Note.pilotLightY0 * zoomFactor)-(Note.pilotLightX1 * zoomFactor, Note.pilotLightY1 * zoomFactor), Note.pilotLightColor, BF
+    Note.Line (Note.pilotLightX0 * zoomFactor - angleOfView.X, Note.pilotLightY0 * zoomFactor - angleOfView.Y)-(Note.pilotLightX1 * zoomFactor - angleOfView.X, Note.pilotLightY1 * zoomFactor - angleOfView.Y), Note.pilotLightColor, BF
 End Function
 Public Function Updata_Colourful()
 If nodeTargetAim <> -1 And Note.彩虹圈.Checked = True Then
@@ -137,10 +142,10 @@ Next
 End Function
 
 Public Function Updata_GetNodeTargetAim_Select(ByRef nid As Long)
-Updata_GetNodeTargetAim_Select_Forward nid
-Updata_GetNodeTargetAim_Select_Backward nid
-node(nid).forward = True
-node(nid).backward = True
+    Updata_GetNodeTargetAim_Select_Forward nid
+    Updata_GetNodeTargetAim_Select_Backward nid
+    node(nid).forward = True
+    node(nid).backward = True
 End Function
 Public Function Updata_GetNodeTargetAim_Select_Backward(ByRef nid As Long)
 Dim i As Long
@@ -176,69 +181,69 @@ For i = 0 To lSum
 Next
 End Function
 Public Function Updata_SelectMove()
-If selectMoveLock = True Then Updata_AllNodeMove True
+    If selectMoveLock = True Then Updata_AllNodeMove True
 End Function
 Public Function Updata_RegionalSelect()
-If regionalSelectLock = True Then
-    Note.FillStyle = 1
-    Note.Line (regionalSelectStart.X, regionalSelectStart.Y)-(mousePos.X, mousePos.Y), RGB(126, 126, 126), B
-    Note.FillStyle = 0
-    Updata_RegionalSelect_Node
-    Updata_RegionalSelect_Line
-End If
+    If regionalSelectLock = True Then
+        Note.FillStyle = 1
+        Note.Line (regionalSelectStart.X, regionalSelectStart.Y)-(mousePos.X, mousePos.Y), RGB(126, 126, 126), B
+        Note.FillStyle = 0
+        Updata_RegionalSelect_Node
+        Updata_RegionalSelect_Line
+    End If
 End Function
 Public Function Updata_RegionalSelect_Line()
-Dim i As Long: Dim widerRange As Boolean
-widerRange = RectangleRightStartCheck(regionalSelectStart, mousePos)
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True Then
-            If node(.Source).select = True And node(.target).select = True Then
-                .select = True
-            ElseIf widerRange = True And LineIntersectionArea(node(.Source).X, node(.Source).Y, node(.target).X, node(.target).Y, regionalSelectStart, mousePos) = True Then
-                .select = True
-            Else
-                .select = False
+    Dim i As Long, widerRange As Boolean
+    widerRange = RectangleRightStartCheck(regionalSelectStart, mousePos)
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True Then
+                If node(.Source).select = True And node(.target).select = True Then
+                    .select = True
+                ElseIf widerRange = True And LineIntersectionArea(node(.Source).X, node(.Source).Y, node(.target).X, node(.target).Y, regionalSelectStart, mousePos) = True Then
+                    .select = True
+                Else
+                    .select = False
+                End If
             End If
-        End If
-    End With
-Next
+        End With
+    Next
 End Function
 Public Function Updata_RegionalSelect_Node()
-Dim i As Long: Dim checkPos As 二维坐标
-For i = 0 To nSum
-    With node(i)
-        If .b = True Then
-            checkPos.X = .X: checkPos.Y = .Y
-            .select = RectangleOverlapCheck(regionalSelectStart, mousePos, checkPos)
-        End If
-    End With
-Next
+    Dim i As Long, checkPos As 二维坐标
+    For i = 0 To nSum
+        With node(i)
+            If .b = True Then
+                checkPos.X = .X: checkPos.Y = .Y
+                .select = RectangleOverlapCheck(regionalSelectStart, mousePos, checkPos)
+            End If
+        End With
+    Next
 End Function
 Public Function Updata_NodeMove()
-Dim dX, dY As Single
-If nodeMoveLock = True Then
-    If OverlappingJudgment(50, lineAddStrat.X, lineAddStrat.Y, mousePos.X, mousePos.Y) = False Then lineAddLock = False
-    dX = mousePos.X - nodeMoveStart.X
-    nodeMoveStart.X = mousePos.X
-    dY = mousePos.Y - nodeMoveStart.Y
-    nodeMoveStart.Y = mousePos.Y
-    With node(nodeClickAim)
-        .X = .X + dX
-        .Y = .Y + dY
-    End With
-End If
+    Dim dX As Single, dY As Single
+    If nodeMoveLock = True Then
+        If OverlappingJudgment(50, lineAddStrat.X, lineAddStrat.Y, mousePos.X, mousePos.Y) = False Then lineAddLock = False
+        dX = mousePos.X - nodeMoveStart.X
+        nodeMoveStart.X = mousePos.X
+        dY = mousePos.Y - nodeMoveStart.Y
+        nodeMoveStart.Y = mousePos.Y
+        With node(nodeClickAim)
+            .X = .X + dX
+            .Y = .Y + dY
+        End With
+    End If
 End Function
 Public Function Updata_AllNodeMove(Optional selectMove As Boolean)
-Dim dX As Single: Dim dY As Single
-If allNodeMoveLock = True Or selectMove = True Then
-    dX = mousePos.X - allNodeMoveStart.X
-    allNodeMoveStart.X = mousePos.X
-    dY = mousePos.Y - allNodeMoveStart.Y
-    allNodeMoveStart.Y = mousePos.Y
-    Updata_AllNodeMove_Moving dX, dY, selectMove
-    nodeEditPos.X = nodeEditPos.X + dX: nodeEditPos.Y = nodeEditPos.Y + dY
-End If
+    Dim dX As Single: Dim dY As Single
+    If selectMove = True Then
+        dX = mousePos.X - allNodeMoveStart.X
+        allNodeMoveStart.X = mousePos.X
+        dY = mousePos.Y - allNodeMoveStart.Y
+        allNodeMoveStart.Y = mousePos.Y
+        Updata_AllNodeMove_Moving dX, dY, selectMove
+        nodeEditPos.X = nodeEditPos.X + dX: nodeEditPos.Y = nodeEditPos.Y + dY
+    End If 'MainCoordinateSystemDefinition
 End Function
 Public Function Updata_AllNodeMove_Moving(ByRef dX As Single, ByRef dY As Single, ByRef selectMove As Boolean)
 Dim i As Long
@@ -257,7 +262,7 @@ For i = 0 To nSum
 Next
 End Function
 Public Function Updata_Node()
-    Dim i As Long, midNodeAT As Single
+    Dim i As Long
     Note.Font.size = MainFormFontSize / zoomFactor
     Note.DrawWidth = lineDefaultSize
     midNodeAT = nodeAttributedToIntegers * 0.5
@@ -272,25 +277,25 @@ Public Function Updata_Node()
                 End If
                 Updata_Node_SetColor i
                 If Note.显示全部节点名.Checked = True Or nodeTargetAim = i Then
-                    Updata_Node_FormPrint .X, .Y, .t
+                    Updata_Node_FormPrint .X, .Y, .t, .content
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.显示顺向节点名.Checked = True And .forward = True Then
-                    Updata_Node_FormPrint .X, .Y, .t
+                    Updata_Node_FormPrint .X, .Y, .t, .content
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.显示逆向节点名.Checked = True And .backward = True Then
-                    Updata_Node_FormPrint .X, .Y, .t
+                    Updata_Node_FormPrint .X, .Y, .t, .content
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.始终显示选点名.Checked = True And .select = True Then
-                    Updata_Node_FormPrint .X, .Y, .t
+                    Updata_Node_FormPrint .X, .Y, .t, .content
                     Updata_Node_FontBold .X, .Y, .t
                 End If
                 If Note.显示节点遍历ID.Checked = True Then
@@ -313,11 +318,20 @@ Public Function Updata_Node()
     Next
     Updata_Node_addNew
 End Function
-Public Function Updata_Node_FormPrint(ByRef X As Single, ByRef Y As Single, ByRef t As String)
+Public Function Updata_Node_FormPrint(X As Single, Y As Single, t As String, Optional c As String)
     'form replace 2
     Note.CurrentX = X
     Note.CurrentY = Y
-    Note.Print t
+    If Note.精简内容.Checked Then
+        contentTemp = 富文本转义(c)
+        If Len(contentTemp) > 10 Then
+            Note.Print t & ":" & Mid(contentTemp, 1, 10) & "...."
+        Else
+            Note.Print t & ":" & contentTemp
+        End If
+    Else
+        Note.Print t
+    End If
 End Function
 Public Function Updata_Node_FontBold(ByRef X As Single, ByRef Y As Single, ByRef t As String)
     Dim fCTmp As Long

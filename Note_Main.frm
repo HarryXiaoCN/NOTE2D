@@ -210,6 +210,7 @@ Begin VB.Form Note
       _ExtentX        =   3625
       _ExtentY        =   873
       _Version        =   393217
+      Enabled         =   -1  'True
       Appearance      =   0
       TextRTF         =   $"Note_Main.frx":700A
    End
@@ -231,7 +232,7 @@ Begin VB.Form Note
       ScaleWidth      =   3585
       TabIndex        =   0
       TabStop         =   0   'False
-      Top             =   6500
+      Top             =   6480
       Visible         =   0   'False
       Width           =   3615
    End
@@ -263,7 +264,6 @@ Begin VB.Form Note
       _ExtentX        =   6773
       _ExtentY        =   3096
       _Version        =   393217
-      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
@@ -335,7 +335,7 @@ Begin VB.Form Note
          Caption         =   "重做"
          Shortcut        =   ^Y
       End
-      Begin VB.Menu Cut1 
+      Begin VB.Menu cut1 
          Caption         =   "-"
       End
       Begin VB.Menu 复制 
@@ -460,6 +460,12 @@ Begin VB.Form Note
          Begin VB.Menu 删除背景图 
             Caption         =   "删除背景图"
          End
+         Begin VB.Menu cut10 
+            Caption         =   "-"
+         End
+         Begin VB.Menu 精简内容 
+            Caption         =   "精简内容"
+         End
          Begin VB.Menu Cut9 
             Caption         =   "-"
          End
@@ -550,9 +556,6 @@ Begin VB.Form Note
       Begin VB.Menu 像素节点 
          Caption         =   "像素节点(P)"
       End
-      Begin VB.Menu 坐标化整 
-         Caption         =   "坐标化整(V)"
-      End
    End
    Begin VB.Menu 功能 
       Caption         =   "功能"
@@ -599,6 +602,9 @@ Begin VB.Form Note
       End
       Begin VB.Menu 节点归整 
          Caption         =   "节点归整"
+      End
+      Begin VB.Menu 坐标化整 
+         Caption         =   "归整间距"
       End
       Begin VB.Menu Cut11 
          Caption         =   "-"
@@ -711,16 +717,6 @@ Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
             ElseIf Shift = 0 Then
                 节点连接大小变化 -10, -1
             End If
-'        Case vbKey0
-'            MainCoordinateSystemZero mouseV3Pos
-        Case 37
-            MapUpdata_AoVMove_Moving -10, 0
-        Case 38
-            MapUpdata_AoVMove_Moving 0, 10
-        Case 39
-            MapUpdata_AoVMove_Moving 10, 0
-        Case 40
-            MapUpdata_AoVMove_Moving 0, -10
         Case 192
             NoteControlDesk.Show
         Case vbKeyR
@@ -743,6 +739,10 @@ Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
             ElseIf Shift = 1 Then
                 节点连接选域删除 KeyCode - 48
             End If
+        Case vbKeySpace
+            angleOfView.X = 0
+            angleOfView.Y = 0
+            MainCoordinateSystemDefinition
     End Select
 End Sub
 Private Sub 确认创建虚拟节点()
@@ -1051,14 +1051,21 @@ End Sub
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     mousePos.X = X: mousePos.Y = Y
     mouseV3Pos.X = X: mouseV3Pos.Y = Y: mouseV3Pos.z = zoomFactor
+    If allNodeMoveLock = True And allNodeMoveStart.X <> 0 And allNodeMoveStart.Y <> 0 Then
+        angleOfView.X = angleOfView.X + X - allNodeMoveStart.X
+        angleOfView.Y = angleOfView.Y + Y - allNodeMoveStart.Y
+        MainCoordinateSystemDefinition
+    End If
 End Sub
 
 Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-mainFormMouseState = False
-allNodeMoveLock = False
-nodeMoveLock = False
-regionalSelectLock = False
-selectMoveLock = False
+    mousePos.X = X: mousePos.Y = Y
+    Form_MouseMove Button, Shift, X, Y
+    mainFormMouseState = False
+    allNodeMoveLock = False
+    nodeMoveLock = False
+    regionalSelectLock = False
+    selectMoveLock = False
 End Sub
 
 Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -1090,23 +1097,25 @@ End
 End Sub
 
 Private Sub GlobalView_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    Dim dX As Single: Dim dY As Single
     If Button = 1 Or Button = 2 Then
-        dX = Note.width / 2 - X
-        dY = Note.height / 2 - Y
-        MapUpdata_AoVMove_Moving dX, dY
-        mouseMapPos.X = Note.width / 2
-        mouseMapPos.Y = Note.height / 2
+        angleOfView.X = Note.width / 2 - X
+        angleOfView.Y = Note.height / 2 - Y
+        MainCoordinateSystemDefinition
         mapMoveLock = True
     End If
 End Sub
 
 Private Sub GlobalView_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
-If mapMoveLock = True And mapGetMousePosLock = False Then mouseMapPos.X = X: mouseMapPos.Y = Y
+    If mapMoveLock = True Then
+        angleOfView.X = Note.width / 2 - X
+        angleOfView.Y = Note.height / 2 - Y
+        MainCoordinateSystemDefinition
+    End If
 End Sub
 
 Private Sub GlobalView_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-mapMoveLock = False
+    GlobalView_MouseMove Button, Shift, X, Y
+    mapMoveLock = False
 End Sub
 
 Private Sub MainTime_Timer()
@@ -1532,6 +1541,10 @@ Private Sub 节点清单_Click()
 End Sub
 
 
+Private Sub 精简内容_Click()
+    精简内容.Checked = Not 精简内容.Checked
+End Sub
+
 Private Sub 矩点_Click()
     矩点.Checked = Not 矩点.Checked
 End Sub
@@ -1937,12 +1950,12 @@ Er:
 End Sub
 
 Private Sub 坐标化整_Click()
-    On Error GoTo Er
+'    On Error GoTo Er
     nodeAttributedToIntegers = Val(InBox("请输入化整数量级：", nodeAttributedToIntegers))
-    If promptBoxSelect = 0 Then
-        NodePositionVague nodeAttributedToIntegers
-    End If
-    Exit Sub
-Er:
-    MsgBox "坐标化整失败，原因：" & Err.Description, 16, "坐标化整"
+'    If promptBoxSelect = 0 Then
+'        NodePositionVague nodeAttributedToIntegers
+'    End If
+'    Exit Sub
+'Er:
+'    MsgBox "坐标化整失败，原因：" & Err.Description, 16, "坐标化整"
 End Sub

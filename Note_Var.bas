@@ -18,8 +18,6 @@ Public 连接列表更新锁 As Boolean
 Public needUpdataNodePrint As Boolean
 Public fictitiousIndexLock As Boolean
 
-Public rectangleStep As Single
-
 Public mainFormMouseState As Boolean
 
 Public node() As 节点
@@ -62,6 +60,7 @@ Public redoSum As Long
 Public fictitiousRootNodeId As Long
 
 Public ntxPath As String
+Public ntxPathNoName As String
 Public meExeId As String
 Public behaviorId As String
 Public redoId As String
@@ -85,6 +84,7 @@ Public nodeMoveStart  As 二维坐标
 Public mousePos As 二维坐标
 Public mouseMapPos As 二维坐标
 Public lineAddStrat As 二维坐标
+Public angleOfView As 二维坐标
 
 Public mouseV3Pos As 三维坐标
 
@@ -126,7 +126,6 @@ Public Sub PublicVarLoad()
     treeTxtToNtx_StepX = 1500
     treeTxtToNtx_StepY = 1000
     
-    rectangleStep = 3000
     rectangleLineColor = 16443110
     nodeAttributedToIntegers = 3000
     

@@ -4,8 +4,8 @@ Begin VB.Form LineListVis
    BackColor       =   &H80000005&
    Caption         =   "连接列表"
    ClientHeight    =   5220
-   ClientLeft      =   165
-   ClientTop       =   855
+   ClientLeft      =   225
+   ClientTop       =   870
    ClientWidth     =   4080
    Icon            =   "LineListVis.frx":0000
    LinkTopic       =   "Form1"
@@ -48,9 +48,9 @@ End Sub
 Private Sub 连接列表_DblClick()
     Dim d As 二维坐标
     If 连接列表.Text <> "" Then
-        d.x = Note.Width / 2 - (node(nodeLine(连接列表.ListIndex).source).x + node(nodeLine(连接列表.ListIndex).target).x) / 2
-        d.y = Note.Height / 2 - (node(nodeLine(连接列表.ListIndex).source).y + node(nodeLine(连接列表.ListIndex).target).y) / 2
-        Updata_AllNodeMove_Moving d.x, d.y, False
+        angleOfView.X = Note.width / 2 - (node(nodeLine(连接列表.ListIndex).Source).X + node(nodeLine(连接列表.ListIndex).target).X) / 2
+        angleOfView.Y = Note.height / 2 - (node(nodeLine(连接列表.ListIndex).Source).Y + node(nodeLine(连接列表.ListIndex).target).Y) / 2
+        MainCoordinateSystemDefinition
     End If
 End Sub
 
