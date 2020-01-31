@@ -14,8 +14,8 @@ Public Function FictitiousCheck()
                                 If FictitiousIndex_NodeNameCheck(.node(.nodeLine(m).target).t, .nodeLine(m).realityId) = False Then
                                     fictitiousIndexLock = True
                                     .nodeLine(m).direction = 1
-                                    .node(.nodeLine(m).target).realityX = .node(.nodeLine(m).target).X - .node(j).X + node(fictitiousRootNodeId).X
-                                    .node(.nodeLine(m).target).realityY = .node(.nodeLine(m).target).Y - .node(j).Y + node(fictitiousRootNodeId).Y
+                                    .node(.nodeLine(m).target).realityX = .node(.nodeLine(m).target).x - .node(j).x + node(fictitiousRootNodeId).x
+                                    .node(.nodeLine(m).target).realityY = .node(.nodeLine(m).target).y - .node(j).y + node(fictitiousRootNodeId).y
                                 ElseIf FictitiousIndex_LineNameCheck(node(fictitiousRootNodeId).t, .node(.nodeLine(m).target).t) = False Then
                                     fictitiousIndexLock = True
                                     .nodeLine(m).direction = 3
@@ -24,8 +24,8 @@ Public Function FictitiousCheck()
                                 If FictitiousIndex_NodeNameCheck(.node(.nodeLine(m).Source).t, .nodeLine(m).realityId) = False Then
                                     fictitiousIndexLock = True
                                     .nodeLine(m).direction = 2
-                                    .node(.nodeLine(m).Source).realityX = .node(.nodeLine(m).Source).X - .node(j).X + node(fictitiousRootNodeId).X
-                                    .node(.nodeLine(m).Source).realityY = .node(.nodeLine(m).Source).Y - .node(j).Y + node(fictitiousRootNodeId).Y
+                                    .node(.nodeLine(m).Source).realityX = .node(.nodeLine(m).Source).x - .node(j).x + node(fictitiousRootNodeId).x
+                                    .node(.nodeLine(m).Source).realityY = .node(.nodeLine(m).Source).y - .node(j).y + node(fictitiousRootNodeId).y
                                 ElseIf FictitiousIndex_LineNameCheck(.node(.nodeLine(m).Source).t, node(fictitiousRootNodeId).t) = False Then
                                     fictitiousIndexLock = True
                                     .nodeLine(m).direction = 4
@@ -80,7 +80,7 @@ Public Function Fictitious_NoteFileRead(ficNote As ÐéÄâ±Ê¼Ç, filePath As String)
                 Loop
         Close #1
         Select Case NoteFileRead_VersionCheck(ntx(0))
-            Case 202, 203
+            Case 202, 203, 204
             Fictitious_NoteFileRead_202 ficNote, ntx
             ficNote.be = True
         End Select
@@ -135,8 +135,8 @@ Public Function Fictitious_NoteFileRead_202(ficNote As ÐéÄâ±Ê¼Ç, ntx() As String
             .content = Replace(lineTmp(3), NODELINEBREAK, vbCrLf)
             .setColor = Val(lineTmp(4))
             .setSize = Val(lineTmp(5))
-            .X = Val(lineTmp(0))
-            .Y = Val(lineTmp(1))
+            .x = Val(lineTmp(0))
+            .y = Val(lineTmp(1))
         End With
         DoEvents
     Next

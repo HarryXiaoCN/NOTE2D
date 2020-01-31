@@ -7,8 +7,8 @@ Public Function NodePositionVague(vT As Single, Optional allNode As Boolean)
         With node(i)
             If .b Then
                 If .select = True Or allNode = True Then
-                    .X = (.X \ vT) * vT
-                    .Y = (.Y \ vT) * vT
+                    .x = (.x \ vT) * vT
+                    .y = (.y \ vT) * vT
                 End If
             End If
         End With
@@ -163,11 +163,11 @@ With fN(0)
     .b = True
     .t = findStr
     .setSize = nodeDefaultSize
-    .setColor = &HFFBF00
-    .X = Note.width / 2
-    .Y = Note.height / 2
+    .setColor = nodeDefaultColor
+    .x = Note.width / 2
+    .y = Note.height / 2
 End With
-ntx = NoteFileWrite_203_Coding(fN, fNSum, fL, fLSum)
+ntx = NoteFileWrite_204_Coding(fN, fNSum, fL, fLSum)
 filename = FreeFile
 Open tempFilePath For Output As #filename
     For i = 0 To UBound(ntx)
@@ -203,7 +203,7 @@ Public Function 富文本转义(s As String) As String
     富文本转义 = NodeListVis.转义文本.Text
 End Function
 Public Function RollerEventHandling(ByRef narrow As Boolean)
-    Dim oldZF As Single: Dim mousePrimaryPos As 三维坐标
+    Dim oldZF As Single, mousePrimaryPos As 三维坐标
     mousePrimaryPos = mouseV3Pos
     oldZF = zoomFactor
     If narrow = True Then
@@ -217,78 +217,79 @@ Public Function RollerEventHandling(ByRef narrow As Boolean)
     放缩率需要提示提示倒计时 = 2
 End Function
 Public Function MainCoordinateSystemDefinition()
-    Note.Scale (-angleOfView.X, Note.height * zoomFactor - angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, -angleOfView.Y)
+'    Note.Scale (-angleOfView.X, Note.height * zoomFactor - angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, -angleOfView.Y)
+    Note.Scale (-angleOfView.x, -angleOfView.y)-(Note.width * zoomFactor - angleOfView.x, Note.height * zoomFactor - angleOfView.y)
 End Function
-Public Function MainCoordinateSystemReduction(ByRef mousePrimaryPos As 三维坐标, ByRef oldZF As Single)
+Public Function MainCoordinateSystemReduction(mousePrimaryPos As 三维坐标, oldZF As Single)
 '    angleOfView.X = mousePrimaryPos.X / mousePrimaryPos.z * (zoomFactor - oldZF)
 '    angleOfView.Y = mousePrimaryPos.Y / mousePrimaryPos.z * (zoomFactor - oldZF)
-    angleOfView.X = mousePrimaryPos.X * (zoomFactor - oldZF)
-    angleOfView.Y = mousePrimaryPos.Y * (zoomFactor - oldZF)
+    angleOfView.x = mousePrimaryPos.x * (zoomFactor - 1)
+    angleOfView.y = mousePrimaryPos.y * (zoomFactor - 1)
     MainCoordinateSystemDefinition
 End Function
 Public Function FindNode_NewNoteOutput_CircularArray(ByRef arrayObj As 节点, ByRef arrAngle As Single, ByRef fNSum As Long)
 If arrAngle > PI / 2 Then
     arrAngle = PI - arrAngle
-    arrayObj.X = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
+    arrayObj.x = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
 Else
-    arrayObj.X = 300 * fNSum * Cos(arrAngle) + Note.width / 2
+    arrayObj.x = 300 * fNSum * Cos(arrAngle) + Note.width / 2
 End If
 If NodeFind.圆形阵列.Checked = True Then
-    arrayObj.Y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
 Else
-    arrayObj.Y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
 End If
 End Function
 
 Public Function BehaviorListAdd(ByRef functionName As String, ParamArray fArr())
-Dim i As Variant
-If behaviorId = "" Then Exit Function '行为无集ID，退出行为记录
-behaviorList(bHLSum) = behaviorId & "," & functionName
-For Each i In fArr
-    behaviorList(bHLSum) = behaviorList(bHLSum) & "," & i
-Next
-bHLSum = bHLSum + 1
-BehaviorListUboundAdd
+    Dim i As Variant
+    If behaviorId = "" Then Exit Function '行为无集ID，退出行为记录
+    behaviorList(bHLSum) = behaviorId & "," & functionName
+    For Each i In fArr
+        behaviorList(bHLSum) = behaviorList(bHLSum) & "," & i
+    Next
+    bHLSum = bHLSum + 1
+    BehaviorListUboundAdd
 End Function
 Public Function RedoListAdd(ByRef functionName As String, ParamArray fArr())
-Dim i As Variant
-If redoId = "" Then Exit Function '行为无集ID，退出行为记录
-redolist(redoSum) = redoId & "," & functionName
-For Each i In fArr
-    redolist(redoSum) = redolist(redoSum) & "," & i
-Next
-redoSum = redoSum + 1
-RedoListUboundAdd
+    Dim i As Variant
+    If redoId = "" Then Exit Function '行为无集ID，退出行为记录
+    redolist(redoSum) = redoId & "," & functionName
+    For Each i In fArr
+        redolist(redoSum) = redolist(redoSum) & "," & i
+    Next
+    redoSum = redoSum + 1
+    RedoListUboundAdd
 End Function
 Public Function BehaviorListUboundAdd()
-If UBound(behaviorList) < bHLSum + 100 Then
-    ReDim Preserve behaviorList(bHLSum + 1000)
-End If
+    If UBound(behaviorList) < bHLSum + 100 Then
+        ReDim Preserve behaviorList(bHLSum + 1000)
+    End If
 End Function
 Public Function RedoListUboundAdd()
-If UBound(redolist) < redoSum + 100 Then
-    ReDim Preserve redolist(redoSum + 1000)
-End If
+    If UBound(redolist) < redoSum + 100 Then
+        ReDim Preserve redolist(redoSum + 1000)
+    End If
 End Function
 Public Function CopyObject(ByRef delSoure As Boolean)
-If CopyObject_BeCheck = True Then
-    CopyObject_Node delSoure
-    CopyObject_Line delSoure
-    CopyObject_Coding
-    DeselectObjcet
-End If
+    If CopyObject_BeCheck = True Then
+        CopyObject_Node delSoure
+        CopyObject_Line delSoure
+        CopyObject_Coding
+        DeselectObjcet
+    End If
 End Function
 Public Function CopyObject_BeCheck() As Boolean
-Dim i As Long
-For i = 0 To nSum
-    With node(i)
-        If .b = True Then
-            If .select = True Or i = nodeTargetAim Then
-                CopyObject_BeCheck = True: Exit Function
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True Then
+                If .select = True Or i = nodeTargetAim Then
+                    CopyObject_BeCheck = True: Exit Function
+                End If
             End If
-        End If
-    End With
-Next
+        End With
+    Next
 End Function
 
 Public Function PasteObject()
@@ -320,216 +321,216 @@ Public Function PasteObject()
     End Select
     Exit Function
 Er:
-    NodeEdit_NewNode "", pasteStr, &HFFBF00, nodeDefaultSize, mousePos.X, mousePos.Y
+    NodeEdit_NewNode "", pasteStr, nodeDefaultColor, nodeDefaultSize, mousePos.x, mousePos.y
 End Function
 Public Function PasteObject_GetNtx(ByRef listStr)
-Dim i As Long: Dim ntx() As String
-ReDim ntx(UBound(listStr) - 1)
-For i = 1 To UBound(listStr)
-    ntx(i - 1) = listStr(i)
-Next
-PasteObject_GetNtx = ntx
+    Dim i As Long, ntx() As String
+    ReDim ntx(UBound(listStr) - 1)
+    For i = 1 To UBound(listStr)
+        ntx(i - 1) = listStr(i)
+    Next
+    PasteObject_GetNtx = ntx
 End Function
 Public Function PasteObject_NtxFileCheck(ByVal linStr As String) As Long
-If InStr(1, linStr, VERSIONID) Then
-    PasteObject_NtxFileCheck = 203
-ElseIf InStr(1, linStr, "Note2D_2") Then
-    PasteObject_NtxFileCheck = 202
-Else
-    PasteObject_NtxFileCheck = -1
-End If
+    If InStr(1, linStr, VERSIONID) Then
+        PasteObject_NtxFileCheck = 203
+    ElseIf InStr(1, linStr, "Note2D_2") Then
+        PasteObject_NtxFileCheck = 202
+    Else
+        PasteObject_NtxFileCheck = -1
+    End If
 End Function
 Public Function PasteObject_Local_Node()
-Dim i As Long: Dim firstPos As 二维坐标
-firstPos.X = node(copyNIdList(0)).X: firstPos.Y = node(copyNIdList(0)).Y
-For i = 0 To copyNSum - 1
-    With node(copyNIdList(i))
-        NodeEdit_NewNode .t, .content, .setColor, .setSize, .X - firstPos.X + mousePos.X, .Y - firstPos.Y + mousePos.Y, True
-    End With
-Next
+    Dim i As Long: Dim firstPos As 二维坐标
+    firstPos.x = node(copyNIdList(0)).x: firstPos.y = node(copyNIdList(0)).y
+    For i = 0 To copyNSum - 1
+        With node(copyNIdList(i))
+            NodeEdit_NewNode .t, .content, .setColor, .setSize, .x - firstPos.x + mousePos.x, .y - firstPos.y + mousePos.y, True
+        End With
+    Next
 End Function
 Public Function PasteObject_Local_Line(ByVal startNodeId As Long)
-Dim i As Long
-For i = 0 To copyLSum - 1
-    With copyLineList(i)
-        LineAdd .Source + startNodeId, .target + startNodeId, .content, .size, True
-    End With
-Next
+    Dim i As Long
+    For i = 0 To copyLSum - 1
+        With copyLineList(i)
+            LineAdd .Source + startNodeId, .target + startNodeId, .content, .size, True
+        End With
+    Next
 End Function
 Public Function CopyObject_Coding()
-Dim ntx: Dim copyStr As String: Dim i As Long
-'ReDim ntx(copyNSum + copyLSum + 1)
-ntx = NoteFileWrite_203_Coding(copyNodeList, copyNSum, copyLineList, copyLSum)
-copyStr = meExeId & COPYLINEBREAK
-For i = 0 To copyNSum + copyLSum
-    copyStr = copyStr & ntx(i) & COPYLINEBREAK
-Next
-Clipboard.Clear
-Clipboard.SetText copyStr
+    Dim ntx: Dim copyStr As String: Dim i As Long
+    'ReDim ntx(copyNSum + copyLSum + 1)
+    ntx = NoteFileWrite_204_Coding(copyNodeList, copyNSum, copyLineList, copyLSum)
+    copyStr = meExeId & COPYLINEBREAK
+    For i = 0 To copyNSum + copyLSum
+        copyStr = copyStr & ntx(i) & COPYLINEBREAK
+    Next
+    Clipboard.Clear
+    Clipboard.SetText copyStr
 End Function
 Public Function CopyObject_Line(ByRef delSoure As Boolean)
-Dim i As Long
-ReDim copyLineList(lSum): ReDim copyLIdList(lSum)
-copyLSum = 0
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True And .select = True Then
-            copyLIdList(copyLSum) = i
-            copyLineList(copyLSum).b = True
-            copyLineList(copyLSum).Source = CopyObject_Line_GetNodeRelativityId(.Source)
-            copyLineList(copyLSum).target = CopyObject_Line_GetNodeRelativityId(.target)
-            copyLineList(copyLSum).content = .content
-            copyLineList(copyLSum).size = .size
-            copyLSum = copyLSum + 1
-            If delSoure = True Then .b = False
-        End If
-    End With
-Next
-End Function
-Public Function CopyObject_Node(ByRef delSoure As Boolean)
-Dim firstPos As 二维坐标: Dim i As Long
-ReDim copyNodeList(nSum): ReDim copyNIdList(nSum)
-copyNSum = 0
-For i = 0 To nSum
-    With node(i)
-        If .b = True Then
-            If .select = True Or i = nodeTargetAim Then
-                copyNIdList(copyNSum) = i
-                If copyNSum = 0 Then
-                    firstPos.X = .X: firstPos.Y = .Y
-                    copyNodeList(copyNSum).X = 0
-                    copyNodeList(copyNSum).Y = 0
-                Else
-                    copyNodeList(copyNSum).X = .X - firstPos.X
-                    copyNodeList(copyNSum).Y = .Y - firstPos.Y
-                End If
-                copyNodeList(copyNSum).b = True
-                copyNodeList(copyNSum).t = .t
-                copyNodeList(copyNSum).content = .content
-                copyNodeList(copyNSum).setColor = .setColor
-                copyNodeList(copyNSum).setSize = .setSize
-                copyNSum = copyNSum + 1
+    Dim i As Long
+    ReDim copyLineList(lSum): ReDim copyLIdList(lSum)
+    copyLSum = 0
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True And .select = True Then
+                copyLIdList(copyLSum) = i
+                copyLineList(copyLSum).b = True
+                copyLineList(copyLSum).Source = CopyObject_Line_GetNodeRelativityId(.Source)
+                copyLineList(copyLSum).target = CopyObject_Line_GetNodeRelativityId(.target)
+                copyLineList(copyLSum).content = .content
+                copyLineList(copyLSum).size = .size
+                copyLSum = copyLSum + 1
                 If delSoure = True Then .b = False
             End If
-        End If
-    End With
-Next
+        End With
+    Next
+End Function
+Public Function CopyObject_Node(ByRef delSoure As Boolean)
+    Dim firstPos As 二维坐标, i As Long
+    ReDim copyNodeList(nSum): ReDim copyNIdList(nSum)
+    copyNSum = 0
+    For i = 0 To nSum
+        With node(i)
+            If .b = True Then
+                If .select = True Or i = nodeTargetAim Then
+                    copyNIdList(copyNSum) = i
+                    If copyNSum = 0 Then
+                        firstPos.x = .x: firstPos.y = .y
+                        copyNodeList(copyNSum).x = 0
+                        copyNodeList(copyNSum).y = 0
+                    Else
+                        copyNodeList(copyNSum).x = .x - firstPos.x
+                        copyNodeList(copyNSum).y = .y - firstPos.y
+                    End If
+                    copyNodeList(copyNSum).b = True
+                    copyNodeList(copyNSum).t = .t
+                    copyNodeList(copyNSum).content = .content
+                    copyNodeList(copyNSum).setColor = .setColor
+                    copyNodeList(copyNSum).setSize = .setSize
+                    copyNSum = copyNSum + 1
+                    If delSoure = True Then .b = False
+                End If
+            End If
+        End With
+    Next
 End Function
 Public Function CopyObject_Line_GetNodeRelativityId(ByRef nid As Long) As Long
-Dim i As Long
-For i = 0 To copyNSum
-    If copyNIdList(i) = nid Then
-        CopyObject_Line_GetNodeRelativityId = i: Exit Function
-    End If
-Next
+    Dim i As Long
+    For i = 0 To copyNSum
+        If copyNIdList(i) = nid Then
+            CopyObject_Line_GetNodeRelativityId = i: Exit Function
+        End If
+    Next
 End Function
 Public Function MeExeIdSet()
-Dim i As Long
-Randomize
-meExeId = ""
-For i = 0 To 9
-    meExeId = meExeId & Int(Rnd * 10)
-Next
+    Dim i As Long
+    Randomize
+    meExeId = ""
+    For i = 0 To 9
+        meExeId = meExeId & Int(Rnd * 10)
+    Next
 End Function
 Public Function BehaviorIdSet()
-Dim i As Long
-Randomize
-behaviorId = ""
-For i = 0 To 9
-    behaviorId = behaviorId & Int(Rnd * 10)
-Next
+    Dim i As Long
+    Randomize
+    behaviorId = ""
+    For i = 0 To 9
+        behaviorId = behaviorId & Int(Rnd * 10)
+    Next
 End Function
 Public Function RedoSet()
-Dim i As Long
-Randomize
-For i = 0 To 9
-    redoId = redoId & Int(Rnd * 10)
-Next
+    Dim i As Long
+    Randomize
+    For i = 0 To 9
+        redoId = redoId & Int(Rnd * 10)
+    Next
 End Function
 Public Function DeleteSelectObjcet()
-Dim i As Long
-If nodeTargetAim <> -1 Then
-    NodeDelete nodeTargetAim
-End If
-For i = 0 To nSum
-    With node(i)
-        If .b = True And .select = True Then
-            NodeDelete i
-        End If
-    End With
-Next
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True And .select = True Then
-            LineDelete i
-        End If
-    End With
-Next
+    Dim i As Long
+    If nodeTargetAim <> -1 Then
+        NodeDelete nodeTargetAim
+    End If
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And .select = True Then
+                NodeDelete i
+            End If
+        End With
+    Next
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True And .select = True Then
+                LineDelete i
+            End If
+        End With
+    Next
 End Function
 Public Function DeselectObjcet()
-Dim i As Long
-For i = 0 To nSum
-    With node(i)
-        If .b = True Then .select = False
-    End With
-Next
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True Then .select = False
-    End With
-Next
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True Then .select = False
+        End With
+    Next
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True Then .select = False
+        End With
+    Next
 End Function
 Public Function ChainSelection(ByRef nid As Long, ByRef selectMode As Long)
-Select Case selectMode
-    Case 0
-        ChainSelection_All nid
-End Select
+    Select Case selectMode
+        Case 0
+            ChainSelection_All nid
+    End Select
 End Function
 Public Function DirectSelect()
-Dim aim, i As Long
-aim = NodeCheck(mousePos.X, mousePos.Y)
-If aim = -1 Then Exit Function
-node(aim).select = True
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True Then
-            If .Source = aim Then
-                .select = True
-                node(.target).select = True
+    Dim aim As Long, i As Long
+    aim = NodeCheck(mousePos.x, mousePos.y)
+    If aim = -1 Then Exit Function
+    node(aim).select = True
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True Then
+                If .Source = aim Then
+                    .select = True
+                    node(.target).select = True
+                End If
+                If .target = aim Then
+                    .select = True
+                    node(.Source).select = True
+                End If
             End If
-            If .target = aim Then
-                .select = True
-                node(.Source).select = True
-            End If
-        End If
-    End With
-Next
+        End With
+    Next
 End Function
 Public Function AllSelection()
-Dim i As Long
-For i = 0 To nSum
-    With node(i)
-        If .b = True Then .select = True
-    End With
-Next
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True Then .select = True
-    End With
-Next
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True Then .select = True
+        End With
+    Next
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True Then .select = True
+        End With
+    Next
 End Function
 
 Public Function ChainSelection_All(ByRef nid As Long) '关联选区
-Dim i As Long
-node(nid).select = True
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True And .search = False Then
-            .search = True
-            If .Source = nid Then ChainSelection_All .target: .select = True
-            If .target = nid Then ChainSelection_All .Source: .select = True
-            .search = False
-        End If
-    End With
-Next
+    Dim i As Long
+    node(nid).select = True
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True And .search = False Then
+                .search = True
+                If .Source = nid Then ChainSelection_All .target: .select = True
+                If .target = nid Then ChainSelection_All .Source: .select = True
+                .search = False
+            End If
+        End With
+    Next
 End Function

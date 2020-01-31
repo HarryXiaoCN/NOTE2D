@@ -210,7 +210,6 @@ Begin VB.Form Note
       _ExtentX        =   3625
       _ExtentY        =   873
       _Version        =   393217
-      Enabled         =   -1  'True
       Appearance      =   0
       TextRTF         =   $"Note_Main.frx":700A
    End
@@ -264,6 +263,7 @@ Begin VB.Form Note
       _ExtentX        =   6773
       _ExtentY        =   3096
       _Version        =   393217
+      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
@@ -556,6 +556,24 @@ Begin VB.Form Note
       Begin VB.Menu 像素节点 
          Caption         =   "像素节点(P)"
       End
+      Begin VB.Menu 节点分拆 
+         Caption         =   "节点分拆(S)"
+      End
+      Begin VB.Menu 属性分拆 
+         Caption         =   "属性分拆(T)"
+      End
+      Begin VB.Menu czcut1 
+         Caption         =   "-"
+      End
+      Begin VB.Menu 节点翻转 
+         Caption         =   "节点翻转"
+         Begin VB.Menu 上下翻转 
+            Caption         =   "上下翻转"
+         End
+         Begin VB.Menu 左右翻转 
+            Caption         =   "左右翻转"
+         End
+      End
    End
    Begin VB.Menu 功能 
       Caption         =   "功能"
@@ -605,6 +623,13 @@ Begin VB.Form Note
       End
       Begin VB.Menu 坐标化整 
          Caption         =   "归整间距"
+      End
+      Begin VB.Menu 创建模式 
+         Caption         =   "创建模式"
+         Checked         =   -1  'True
+      End
+      Begin VB.Menu 色彩链路 
+         Caption         =   "色彩链路"
       End
       Begin VB.Menu Cut11 
          Caption         =   "-"
@@ -672,91 +697,116 @@ Private Sub ActionTimer_Timer()
 End Sub
 
 Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
-    Debug.Print KeyCode; ; Shift
-    Select Case KeyCode
-        Case vbKeyA
-            If Shift = 0 Then
-                圆阵节点_Click
-            End If
-        Case 13 '回车
-            确认创建虚拟节点
-        Case 27 'ESC
-            DeselectObjcet
-            If 子节点视图容器.Visible Then
-                子节点视图按钮_Click 0
-            End If
-            fictitiousIndexLock = False
-        Case vbKeyW
-            If Shift = 0 Then 波化节点_Click
-        Case vbKeyP
-            If Shift = 0 Then 像素节点_Click
-        Case vbKeyV
-            If Shift = 0 Then 坐标化整_Click
-        Case vbKeyO
-            If Shift = 3 Then
-                归一化选中节点
-            End If
-        Case 46
-            BehaviorIdSet
-            DeleteSelectObjcet
-        Case 107, 187 '+
-            If Shift = 2 Then
-                RollerEventHandling False
-            ElseIf Shift = 0 Then
-                节点连接大小变化 10, 1
-            End If
-        Case vbKeyC
-            If Shift = 3 Then
-                印窃_Click
-            ElseIf Shift = 0 Then
-                连接内容_Click
-            End If
-        Case 109, 189 '-
-            If Shift = 2 Then
-                RollerEventHandling True
-            ElseIf Shift = 0 Then
-                节点连接大小变化 -10, -1
-            End If
-        Case 192
-            NoteControlDesk.Show
-        Case vbKeyR
-            连接反转_Click
-        Case vbKeyL
-            If Shift = 1 Then
-                取消选区内的所有连接
-            End If
-        Case vbKeyN
-            If Shift = 1 Then
-                取消选区内的所有节点
-            ElseIf Shift = 0 Then
-                设置子节点颜色
-            End If
-        Case 48 To 57
-            If Shift = 2 Then
-                节点连接选域设置 KeyCode - 48
-            ElseIf Shift = 0 Then
-                节点连接选域使用 KeyCode - 48
-            ElseIf Shift = 1 Then
-                节点连接选域删除 KeyCode - 48
-            End If
-        Case vbKeySpace
-            angleOfView.X = 0
-            angleOfView.Y = 0
-            MainCoordinateSystemDefinition
-    End Select
+'    Debug.Print KeyCode; ; Shift
+    If PromptForm.Visible = False Then
+        Select Case KeyCode
+            Case vbKeyA
+                If Shift = 0 Then
+                    圆阵节点_Click
+                End If
+            Case vbKeyS
+                If Shift = 0 Then
+                    节点分拆_Click
+                End If
+            Case vbKeyT
+                If Shift = 0 Then
+                    属性分拆_Click
+                End If
+            Case 13 '回车
+                确认创建虚拟节点
+            Case 27 'ESC
+                DeselectObjcet
+                If 子节点视图容器.Visible Then
+                    子节点视图按钮_Click 0
+                End If
+                If nodeCreativeMode Then
+                    剩余节点阵列 mousePos
+                End If
+                fictitiousIndexLock = False
+            Case vbKeyW
+                If Shift = 0 Then 波化节点_Click
+            Case vbKeyP
+                If Shift = 0 Then 像素节点_Click
+            Case vbKeyV
+                If Shift = 0 Then 坐标化整_Click
+            Case vbKeyO
+                If Shift = 3 Then
+                    归一化选中节点
+                End If
+            Case 46
+                BehaviorIdSet
+                DeleteSelectObjcet
+                fictitiousIndexLock = False
+            Case 107, 187 '+
+                If Shift = 2 Then
+                    RollerEventHandling False
+                ElseIf Shift = 0 Then
+                    节点连接大小变化 10, 1
+                End If
+            Case vbKeyC
+                If Shift = 3 Then
+                    印窃_Click
+                ElseIf Shift = 0 Then
+                    连接内容_Click
+                End If
+            Case 109, 189 '-
+                If Shift = 2 Then
+                    RollerEventHandling True
+                ElseIf Shift = 0 Then
+                    节点连接大小变化 -10, -1
+                End If
+            Case 192 '~
+                NoteControlDesk.Show
+            Case vbKeyR
+                连接反转_Click
+            Case vbKeyL
+                If Shift = 1 Then
+                    取消选区内的所有连接
+                End If
+            Case vbKeyN
+                If Shift = 1 Then
+                    取消选区内的所有节点
+                ElseIf Shift = 0 Then
+                    设置子节点颜色
+                End If
+            Case 48 To 57
+                If Shift = 2 Then
+                    节点连接选域设置 KeyCode - 48
+                ElseIf Shift = 0 Then
+                    节点连接选域使用 KeyCode - 48
+                ElseIf Shift = 1 Then
+                    节点连接选域删除 KeyCode - 48
+                End If
+            Case vbKeySpace
+                angleOfView.X = 0
+                angleOfView.Y = 0
+                MainCoordinateSystemDefinition
+            Case vbKeyF1
+                Note.left = 0
+                Note.Top = 0
+            Case vbKeyF2
+                Note.width = 19200
+                Note.height = 10800
+        End Select
+    End If
 End Sub
 Private Sub 确认创建虚拟节点()
-    Dim i As Long, j As Long
+    Dim i As Long, j As Long, tmpName As String, tmpID As Long
     BehaviorIdSet
     If fictitiousIndexLock Then
+        tmpID = -1
         For i = 0 To UBound(fictitiousNote)
             With fictitiousNote(i)
                 If .be Then
                     For j = 0 To UBound(.nodeLine)
                         If .nodeLine(j).direction = 1 Then
-                            LineAdd fictitiousRootNodeId, NodeEdit_NewNode(.node(.nodeLine(j).target).t, .node(.nodeLine(j).target).content, .node(.nodeLine(j).target).setColor, .node(.nodeLine(j).target).setSize, .node(.nodeLine(j).target).realityX, .node(.nodeLine(j).target).realityY), .nodeLine(j).content, .nodeLine(j).size
+                            tmpID = NodeEdit_NewNode(.node(.nodeLine(j).target).t, .node(.nodeLine(j).target).content, .node(.nodeLine(j).target).setColor, .node(.nodeLine(j).target).setSize, .node(.nodeLine(j).target).realityX, .node(.nodeLine(j).target).realityY)
+                            LineAdd fictitiousRootNodeId, tmpID, .nodeLine(j).content, .nodeLine(j).size
+                            tmpName = .node(.nodeLine(j).target).t
                         ElseIf .nodeLine(j).direction = 2 Then
-                            LineAdd NodeEdit_NewNode(.node(.nodeLine(j).Source).t, .node(.nodeLine(j).Source).content, .node(.nodeLine(j).Source).setColor, .node(.nodeLine(j).Source).setSize, .node(.nodeLine(j).Source).realityX, .node(.nodeLine(j).Source).realityY), fictitiousRootNodeId, .nodeLine(j).content, .nodeLine(j).size
+                            tmpID = NodeEdit_NewNode(.node(.nodeLine(j).Source).t, .node(.nodeLine(j).Source).content, .node(.nodeLine(j).Source).setColor, .node(.nodeLine(j).Source).setSize, .node(.nodeLine(j).Source).realityX, .node(.nodeLine(j).Source).realityY)
+                            LineAdd fictitiousRootNodeId, tmpID, .nodeLine(j).content, .nodeLine(j).size
+                            tmpName = .node(.nodeLine(j).Source).t
                         ElseIf .nodeLine(j).direction = 3 Then
                             LineAdd fictitiousRootNodeId, .nodeLine(j).realityId, .nodeLine(j).content, .nodeLine(j).size
                         ElseIf .nodeLine(j).direction = 4 Then
@@ -766,7 +816,12 @@ Private Sub 确认创建虚拟节点()
                 End If
             End With
         Next
-        fictitiousIndexLock = False
+        If tmpID <> -1 Then
+            fictitiousIndexLock = False
+            fictitiousRootNodeId = tmpID
+            fictitiousIndexName = tmpName
+            FictitiousCheck
+        End If
     End If
 End Sub
 Private Sub 归一化选中节点()
@@ -976,6 +1031,9 @@ Private Sub Form_Load()
     ProfilePath = Environ("USERPROFILE") & "\Documents\Note\"
     InstallPath = Environ("systemdrive") & "\ProgramData\Note\"
     LoadProfile
+    If colorLinkDic.Count = 0 Then
+        色彩链路初始化
+    End If
     Select Case 注册表注册("NodeNote", ".ntx")
         Case 0
             MsgBox "软件注册失败！请用管理员身份运行！"
@@ -1039,7 +1097,12 @@ Select Case Button
             End Select
         End If
     Case 2
-        NodeEditeStart X, Y
+        If nodeCreativeMode Then
+            顺序放置节点 mousePos
+            nodeCreativeStartPos = mousePos
+        Else
+            NodeEditeStart X, Y
+        End If
     Case 4
         Select Case Shift
             Case 4
@@ -1050,12 +1113,20 @@ End Sub
 
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     mousePos.X = X: mousePos.Y = Y
-    mouseV3Pos.X = X: mouseV3Pos.Y = Y: mouseV3Pos.z = zoomFactor
-    If allNodeMoveLock = True And allNodeMoveStart.X <> 0 And allNodeMoveStart.Y <> 0 Then
-        angleOfView.X = angleOfView.X + X - allNodeMoveStart.X
-        angleOfView.Y = angleOfView.Y + Y - allNodeMoveStart.Y
-        MainCoordinateSystemDefinition
-    End If
+    mouseV3Pos.z = zoomFactor
+    mouseV3Pos.X = X: mouseV3Pos.Y = Y
+    Select Case Button
+        Case 1
+            If allNodeMoveLock = True And allNodeMoveStart.X <> 0 And allNodeMoveStart.Y <> 0 Then
+                angleOfView.X = angleOfView.X + X - allNodeMoveStart.X
+                angleOfView.Y = angleOfView.Y + Y - allNodeMoveStart.Y
+                MainCoordinateSystemDefinition
+            End If
+        Case 2
+            If nodeCreativeMode Then
+                新节点放置检查 mousePos
+            End If
+    End Select
 End Sub
 
 Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -1069,37 +1140,38 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As 
 End Sub
 
 Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
-NoteFileRead Data.Files(1)
+    NoteFileRead Data.Files(1)
 End Sub
 
 Private Sub Form_Resize()
-If WindowState = 1 Then Exit Sub
-MainCoordinateSystemDefinition
-If Me.height < 4000 Then Me.Enabled = False: Me.height = 4000: Me.Enabled = True
-If Me.width < 4000 Then Me.Enabled = False: Me.width = 4000: Me.Enabled = True
-'PilotLight.left = Me.Width * zoomFactor - 240 * zoomFactor
-Note.pilotLightX0 = Me.width - 300
-Note.pilotLightX1 = Me.width - 230
-Note.pilotLightY0 = Me.height - 300
-Note.pilotLightY1 = Me.height - 200
-
-GlobalView.left = Me.width * zoomFactor - GlobalView.width - 120 * zoomFactor
-GlobalView.Top = GlobalView.height + 120 * zoomFactor
+    If WindowState = 1 Then Exit Sub
+    MainCoordinateSystemDefinition
+    If Me.height < 4000 Then Me.Enabled = False: Me.height = 4000: Me.Enabled = True
+    If Me.width < 4000 Then Me.Enabled = False: Me.width = 4000: Me.Enabled = True
+    'PilotLight.left = Me.Width * zoomFactor - 240 * zoomFactor
+    Note.pilotLightX0 = Me.width - 300
+    Note.pilotLightX1 = Me.width - 230
+    Note.pilotLightY0 = 300
+    Note.pilotLightY1 = 200
+    
+    GlobalView.left = Me.width * zoomFactor - GlobalView.width - 120 * zoomFactor - angleOfView.X
+    GlobalView.Top = Me.height * zoomFactor - GlobalView.height - 120 * zoomFactor - angleOfView.Y
+    Debug.Print GlobalView.left; ; GlobalView.Top
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
-SaveProfile
-'UnHookMouse Me.hWnd
-If App.LogMode <> 0 Then
-    UnHookMouse Me.hWnd
-End If
-End
+    SaveProfile
+    'UnHookMouse Me.hWnd
+    If App.LogMode <> 0 Then
+        UnHookMouse Me.hWnd
+    End If
+    End
 End Sub
 
 Private Sub GlobalView_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If Button = 1 Or Button = 2 Then
-        angleOfView.X = Note.width / 2 - X
-        angleOfView.Y = Note.height / 2 - Y
+        angleOfView.X = Note.width * zoomFactor / 2 - X
+        angleOfView.Y = Note.height * zoomFactor / 2 - Y
         MainCoordinateSystemDefinition
         mapMoveLock = True
     End If
@@ -1107,8 +1179,8 @@ End Sub
 
 Private Sub GlobalView_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     If mapMoveLock = True Then
-        angleOfView.X = Note.width / 2 - X
-        angleOfView.Y = Note.height / 2 - Y
+        angleOfView.X = Note.width * zoomFactor / 2 - X
+        angleOfView.Y = Note.height * zoomFactor / 2 - Y
         MainCoordinateSystemDefinition
     End If
 End Sub
@@ -1190,7 +1262,7 @@ Private Sub 文章节点化(txt As String)
     For i = 1 To Len(txt)
         sT = Mid(txt, i, 1)
         列标 = 列标 + 1
-        idT = NodeEdit_NewNode(回车转义(sT), "", &HFFBF00, nodeDefaultSize, 列标 * imageToNtx_StepX, Me.height + 回车数量 * imageToNtx_StepY)
+        idT = NodeEdit_NewNode(回车转义(sT), "", nodeDefaultColor, nodeDefaultSize, 列标 * imageToNtx_StepX, Me.height + 回车数量 * imageToNtx_StepY)
         If i > 1 Then LineAdd idT - 1, idT, "", lineDefaultSize
         If sT = vbLf Then 回车数量 = 回车数量 + 1: 列标 = 0
     Next
@@ -1215,9 +1287,9 @@ Private Sub 保存笔记_Click()
     On Error GoTo Er
     If Dir(ntxPath) = "" Then
         filePath = 对话框选取保存文件路径("节点笔记 (*.ntx)|*.ntx|所有文件 (*.*)|*.*")
-        If filePath <> "" Then NoteFileWrite_203 filePath
+        If filePath <> "" Then NoteFileWrite_204 filePath
     Else
-        NoteFileWrite_203 ntxPath
+        NoteFileWrite_204 ntxPath
     End If
 
 Exit Sub
@@ -1304,6 +1376,10 @@ RedoSet
 RevokeBehavior
 End Sub
 
+
+Private Sub 创建模式_Click()
+    创建模式.Checked = Not 创建模式.Checked
+End Sub
 
 Private Sub 打开笔记_Click()
     Dim filePath As String
@@ -1528,6 +1604,92 @@ Private Sub 剪切_Click()
     CopyObject True
 End Sub
 
+Private Sub 节点分拆_Click()
+    Dim i As Long, 缓存 As String, j As Long, tmpID As Long, mPT As 二维坐标
+    缓存 = InBox("请输入拆分特征字符（空字符将逐字拆分）：")
+    If promptBoxSelect = 0 Then
+        mPT = mousePos
+        For i = 0 To nSum
+            With node(i)
+                If .b = True Then
+                    If .select = True Or i = nodeTargetAim Then
+                        nodeCreativeSourceId = i
+                        nodeCreativeListStart = 0
+                        If 缓存 = "" Then
+                            ReDim NodeCreativeList(Len(.t) - 1)
+                            For j = 1 To Len(.t)
+                                NodeCreativeList(j - 1).b = True
+                                NodeCreativeList(j - 1).t = Mid(.t, j, 1)
+                                NodeCreativeList(j - 1).content = .content
+                                NodeCreativeList(j - 1).setColor = .setColor
+                                NodeCreativeList(j - 1).setSize = .setSize
+                            Next
+                        ElseIf InStr(1, .t, 缓存) > 0 Then
+                            Dim sT() As String
+                            sT = Split(.t, 缓存)
+                            ReDim NodeCreativeList(UBound(sT))
+                            For j = 0 To UBound(sT)
+                                NodeCreativeList(j).b = True
+                                NodeCreativeList(j).t = sT(j)
+                                NodeCreativeList(j).content = .content
+                                NodeCreativeList(j).setColor = .setColor
+                                NodeCreativeList(j).setSize = .setSize
+                            Next
+                        End If
+                        Exit For
+                    End If
+                End If
+            End With
+        Next
+        If 创建模式.Checked Then
+            进入创建模式
+        Else
+            剩余节点阵列 mPT
+        End If
+    End If
+End Sub
+
+Private Sub 色彩链路_Click()
+    色彩链路.Checked = Not 色彩链路.Checked
+End Sub
+
+Private Sub 属性分拆_Click()
+    Dim i As Long, j As Long, sT() As String, m As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b Then
+                If .select = True Or i = nodeTargetAim Then
+                    nodeCreativeSourceId = i
+                    nodeCreativeListStart = 1
+                    sT = Split(富文本转义(.content), vbCrLf)
+                    ReDim NodeCreativeList(0)
+                    For j = 0 To UBound(sT)
+                        If sT(j) <> "" Then
+                            ReDim Preserve NodeCreativeList(UBound(NodeCreativeList) + 1)
+                            NodeCreativeList(UBound(NodeCreativeList)).b = True
+                            m = InStr(1, sT(j), ":")
+                            If m > 0 Then
+                                NodeCreativeList(UBound(NodeCreativeList)).t = Mid(sT(j), 1, m - 1)
+                                NodeCreativeList(UBound(NodeCreativeList)).content = Mid(sT(j), m + 1)
+                            Else
+                                NodeCreativeList(UBound(NodeCreativeList)).t = sT(j)
+                            End If
+                            NodeCreativeList(UBound(NodeCreativeList)).setColor = .setColor
+                            NodeCreativeList(UBound(NodeCreativeList)).setSize = .setSize
+                        End If
+                    Next
+                    Exit For
+                End If
+            End If
+        End With
+    Next
+    If 创建模式.Checked Then
+        进入创建模式
+    Else
+        剩余节点阵列 mousePos
+    End If
+End Sub
+
 Private Sub 节点归一_Click()
     归一化选中节点
 End Sub
@@ -1539,7 +1701,6 @@ End Sub
 Private Sub 节点清单_Click()
     NodeListVis.Show
 End Sub
-
 
 Private Sub 精简内容_Click()
     精简内容.Checked = Not 精简内容.Checked
@@ -1577,7 +1738,7 @@ Private Sub 另存为_Click()
     Dim filePath As String
     On Error GoTo Er
     filePath = 对话框选取保存文件路径("节点笔记 (*.ntx)|*.ntx|所有文件 (*.*)|*.*")
-    If filePath <> "" Then NoteFileWrite_203 filePath
+    If filePath <> "" Then NoteFileWrite_204 filePath
     Exit Sub
 Er:
     MsgBox "另存为笔记失败，原因：" & Err.Description, 16, "另存为笔记"
@@ -1684,6 +1845,17 @@ End Sub
 Private Sub 删除背景图_Click()
     Me.Picture = Nothing
     homeBackPicPath = ""
+End Sub
+
+Private Sub 上下翻转_Click()
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b Then
+                .Y = -.Y
+            End If
+        End With
+    Next
 End Sub
 
 Private Sub 设置默认节点大小_Click()
@@ -1947,6 +2119,17 @@ With CommonDialog1
     Me.Font.Strikethrough = .FontStrikethru '删除线
 End With
 Er:
+End Sub
+
+Private Sub 左右翻转_Click()
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b Then
+                .X = -.X
+            End If
+        End With
+    Next
 End Sub
 
 Private Sub 坐标化整_Click()

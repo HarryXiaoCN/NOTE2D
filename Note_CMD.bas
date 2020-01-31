@@ -43,7 +43,11 @@ Private Function CMD_LineExecute(cmd As String) As String
             CMD_LineExecute = CMD_LineExecute _
                             & vbCrLf & "关闭动作[OFFACTION/OA] 动作名(字符串)" _
                             & vbCrLf & "打印动作列表[PRINTACTIONLIST/PAL]" _
-                            & vbCrLf & "打印可执行动作列表[PRINTEXECUTABLEACTIONLIST/PEAL]"
+                            & vbCrLf & "打印可执行动作列表[PRINTEXECUTABLEACTIONLIST/PEAL]" _
+                            & vbCrLf & "重置镜头位置[RESETLENSPOSITION/PLP] X(数值),Y(数值)" _
+                            & vbCrLf & "色彩链路表修改[COLORLINKDICMOD/CLDM] 字典字符串(VBColor1:VBColor2,VBColor2:VBColor3...)" _
+                            & vbCrLf & "色彩链路表重置[COLORLINKDICRESET/CLDS]" _
+                            & vbCrLf & "打印色彩链路表[PRINTCOLORLINKDIC/PCLD]"
             Exit Function
         Case "阵列新增节点", "FORNODEADD"
             阵列新增节点 Val(cT(1)), Val(cT(2)), Val(cT(3)), Val(cT(4)), Val(cT(5)), Val(cT(6)), cT(7), cT(8), cT(9), Val(cT(10)), Val(cT(11))
@@ -144,11 +148,54 @@ Private Function CMD_LineExecute(cmd As String) As String
         Case "打印可执行动作列表", "PRINTEXECUTABLEACTIONLIST", "PEAL"
             CMD_LineExecute = 打印可执行动作列表
             Exit Function
+        Case "重置镜头位置", "RESETLENSPOSITION", "PLP"
+            angleOfView.X = Val(cT(1))
+            angleOfView.Y = Val(cT(2))
+            MainCoordinateSystemDefinition
+            GoTo Success
+        Case "色彩链路表修改", "COLORLINKDICMOD", "CLDM"
+            色彩链路字典修改 cT(1)
+            GoTo Success
+        Case "色彩链路表重置", "COLORLINKDICRESET", "CLDS"
+            色彩链路初始化
+            GoTo Success
+        Case "打印色彩链路表", "PRINTCOLORLINKDIC", "PCLD"
+            CMD_LineExecute = 色彩链路字典导出
+            Exit Function
     End Select
     CMD_LineExecute = "未知命令！"
 Exit Function
 Success:
     CMD_LineExecute = "命令执行成功！"
+End Function
+Public Sub 色彩链路字典修改(s As String)
+    Dim i As Long, sT() As String, sT2() As String
+    colorLinkDic.RemoveAll
+    If InStr(1, s, ",") > 0 Then
+        sT = Split(s, ",")
+        For i = 0 To UBound(sT)
+            If InStr(1, sT(i), ":") > 0 Then
+                sT2 = Split(sT(i), ":")
+                colorLinkDic.Add Val(sT2(0)), Val(sT2(1))
+            End If
+        Next
+    End If
+End Sub
+Public Function 色彩链路初始化()
+    colorLinkDic.RemoveAll
+    colorLinkDic.Add &HFFBF00, &HC000C0
+    colorLinkDic.Add &HC000C0, &HFF&
+    colorLinkDic.Add &HFF&, &H80FF&
+    colorLinkDic.Add &H80FF&, &HFFFF&
+    colorLinkDic.Add &HFFFF&, &HFF00&
+    colorLinkDic.Add &HFF00&, &HFFFF00
+    colorLinkDic.Add &HFFFF00, &HFFBF00
+End Function
+Public Function 色彩链路字典导出() As String
+    Dim i As Long
+    For i = 0 To colorLinkDic.Count - 1
+        色彩链路字典导出 = 色彩链路字典导出 & colorLinkDic.Keys(i) & ":" & colorLinkDic.Items(i) & ","
+    Next
 End Function
 Private Function 打印可执行动作列表() As String
     Dim i As Long, j As Long

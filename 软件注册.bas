@@ -16,7 +16,7 @@ Public Function 注册表注册(ByVal 注册表目录名 As String, ByVal 扩展名 As String)
         
             RegSetValue HKEY_CLASSES_ROOT, 扩展名, REG_SZ, 注册表目录名, 7
             RegSetValue HKEY_CLASSES_ROOT, 扩展名 & "ShellNew", REG_SZ, "", 0
-            NoteFileWrite_203 InstallPath & "新建节点文件.ntx"
+            NoteFileWrite_204 InstallPath & "新建节点文件.ntx"
             Shell "cmd /c reg add HKEY_CLASSES_ROOT\.ntx\ShellNew /v FileName /t REG_SZ /d " & InstallPath & "新建节点文件.ntx /f", vbHide
             RegSetValue HKEY_CLASSES_ROOT, 注册表目录名, REG_SZ, "Node Notes File", 15
             

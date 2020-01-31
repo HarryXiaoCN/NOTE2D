@@ -1,7 +1,7 @@
 Attribute VB_Name = "Note_To"
 Public 导入TXT文件路径 As String, 有效像素个数 As Long
 Public Function NoteToImage(fP As String, image As PictureBox) As Boolean
-    Dim X As Long, Y As Long, c As Long, mX As Long, mY As Long, dX As Single, dY As Single
+    Dim x As Long, y As Long, c As Long, mX As Long, mY As Long, dX As Single, dY As Single
     image.Cls
     有效像素个数 = 0
     图片边界确定 mX, mY
@@ -18,18 +18,18 @@ Public Function NoteToImage(fP As String, image As PictureBox) As Boolean
     End If
 End Function
 Private Function 图片边界确定(w As Long, h As Long)
-    Dim i As Long, X As Long, Y As Long, c As Long
+    Dim i As Long, x As Long, y As Long, c As Long
     For i = 0 To nSum
         With node(i)
             If .b Then
                 If .select Then
-                    If 节点内容图片解析(富文本转义(.content), X, Y, c) Then
+                    If 节点内容图片解析(富文本转义(.content), x, y, c) Then
                         有效像素个数 = 有效像素个数 + 1
-                        If X > w Then
-                            w = X
+                        If x > w Then
+                            w = x
                         End If
-                        If Y > h Then
-                            h = Y
+                        If y > h Then
+                            h = y
                         End If
                     End If
                 End If
@@ -38,28 +38,28 @@ Private Function 图片边界确定(w As Long, h As Long)
     Next
 End Function
 Private Function 图片递归(image As PictureBox)
-    Dim i As Long, X As Long, Y As Long, c As Long
+    Dim i As Long, x As Long, y As Long, c As Long
     For i = 0 To nSum
         With node(i)
             If .b Then
                 If .select Then
-                    If 节点内容图片解析(富文本转义(.content), X, Y, c) Then
-                        image.Line (X, Y)-(X + 1, Y + 1), c, BF
+                    If 节点内容图片解析(富文本转义(.content), x, y, c) Then
+                        image.Line (x, y)-(x + 1, y + 1), c, BF
                     End If
                 End If
             End If
         End With
     Next
 End Function
-Public Function 节点内容图片解析(nC As String, X As Long, Y As Long, c As Long) As Boolean
+Public Function 节点内容图片解析(nC As String, x As Long, y As Long, c As Long) As Boolean
     Dim sT As String, tT As Long, vT() As String
     tT = InStr(1, nC, "像素[")
     If tT > 0 Then
         sT = Mid(nC, tT + 3, InStr(1, nC, "]") - tT - 3)
         vT = Split(sT, ",")
         If UBound(vT) >= 2 Then
-            X = Val(vT(0))
-            Y = Val(vT(1))
+            x = Val(vT(0))
+            y = Val(vT(1))
             c = Val(vT(2))
             节点内容图片解析 = True
         End If
@@ -67,13 +67,13 @@ Public Function 节点内容图片解析(nC As String, X As Long, Y As Long, c As Long) 
 End Function
 
 Public Function 位图节点化(image As PictureBox)
-    Dim X As Long, Y As Long
+    Dim x As Long, y As Long
     Note.MainTime.Enabled = False
     Note.MapUpdataTimer.Enabled = False
     If image.ScaleWidth * image.ScaleHeight <= 10000 Then
-        For X = 0 To image.ScaleWidth - 1
-            For Y = 0 To image.ScaleHeight - 1
-                NodeEdit_Save nSum, "[" & X & "," & Y & "]", "像素[" & X & "," & Y & "," & image.Point(X, Y) & "]", image.Point(X, Y), nodeDefaultSize, imageToNtx_StartX + X * imageToNtx_StepX, imageToNtx_StartY + Y * imageToNtx_StepY
+        For x = 0 To image.ScaleWidth - 1
+            For y = 0 To image.ScaleHeight - 1
+                NodeEdit_Save nSum, "[" & x & "," & y & "]", "像素[" & x & "," & y & "," & image.Point(x, y) & "]", image.Point(x, y), nodeDefaultSize, imageToNtx_StartX + x * imageToNtx_StepX, imageToNtx_StartY + y * imageToNtx_StepY
                 nSum = nSum + 1
             Next
         Next
@@ -209,11 +209,11 @@ Private Function AnalysisTreeTXT(wS() As String, maxRow As Long, maxColumn As Lo
         For j = 1 To maxColumn Step 3
             If j = 1 Then
                 If wS(i, j) <> "" Then
-                    deepNode(j) = NodeEdit_NewNode(wS(i, j), wS(i, j + 1), &HFFBF00, nodeDefaultSize, treeTxtToNtx_StartX + treeTxtToNtx_StepX * i, treeTxtToNtx_StartY + treeTxtToNtx_StepY * j, True)
+                    deepNode(j) = NodeEdit_NewNode(wS(i, j), wS(i, j + 1), nodeDefaultColor, nodeDefaultSize, treeTxtToNtx_StartX + treeTxtToNtx_StepX * i, treeTxtToNtx_StartY + treeTxtToNtx_StepY * j, True)
                 End If
             Else
                 If wS(i, j) <> "" Then
-                    deepNode(j) = NodeEdit_NewNode(wS(i, j), wS(i, j + 1), &HFFBF00, nodeDefaultSize, treeTxtToNtx_StartX + treeTxtToNtx_StepX * i, treeTxtToNtx_StartY + treeTxtToNtx_StepY * j, True)
+                    deepNode(j) = NodeEdit_NewNode(wS(i, j), wS(i, j + 1), nodeDefaultColor, nodeDefaultSize, treeTxtToNtx_StartX + treeTxtToNtx_StepX * i, treeTxtToNtx_StartY + treeTxtToNtx_StepY * j, True)
                     LineAdd deepNode(j - 3), deepNode(j), wS(i, j - 1), lineDefaultSize, True
                 End If
             End If

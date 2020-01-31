@@ -129,8 +129,8 @@ End Sub
 Private Sub 选项_Click(Index As Integer)
     promptBoxSelect = Index
     Select Case Index
-            Case 0
-                promptBoxText = 数据栏.Text
+        Case 0
+            promptBoxText = 数据栏.Text
     End Select
     Unload Me
 End Sub

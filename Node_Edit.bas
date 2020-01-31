@@ -47,7 +47,7 @@ Public Function NodeEdit_NewNode(ByVal title As String, ByVal content As String,
     NodeEdit_NewNode = nodeEditAim
 End Function
 Public Function NodeEdit_TitleFilter(ByRef nid As Long, ByRef title As String) As String
-If title = "" Or title = "请输入节点标题..." Then
+If title = "" Then
     NodeEdit_TitleFilter = NodeEdit_TitleFilter_StrCombination
 Else
     NodeEdit_TitleFilter = title
@@ -79,7 +79,8 @@ With node(nid)
     .X = X
     .Y = Y
     .size = setS
-    .t = NodeEdit_TitleFilter(nid, title)
+'    .t = NodeEdit_TitleFilter(nid, title)
+    .t = title
     .content = content
     .setColor = setC
     .setSize = setS
@@ -125,22 +126,27 @@ Public Function NodeDelete_RelevantLine(ByRef nid As Long)
 Dim i As Long
 For i = 0 To lSum
     With nodeLine(i)
-        If .b = True And (.Source = nid Or .target = nid) Then .b = False
+        If .b = True And (.Source = nid Or .target = nid) Then
+            LineDelete i
+        End If
     End With
 Next
 End Function
 Public Function LineAdd_Save(ByRef Source As Long, ByRef target As Long, content As String, size As Single, Optional pitchOn As Boolean)
-BehaviorListAdd "LineAdd_Save", lSum '行为记录函数
-With nodeLine(lSum)
-    .b = True
-    .Source = Source
-    .target = target
-    .select = pitchOn
-    .content = content
-    .size = size
-End With
-lSum = lSum + 1
-LineUboundAdd
+    BehaviorListAdd "LineAdd_Save", lSum '行为记录函数
+    With nodeLine(lSum)
+        .b = True
+        .Source = Source
+        .target = target
+        .select = pitchOn
+        .content = content
+        .size = size
+    End With
+    lSum = lSum + 1
+    LineUboundAdd
+    If Note.色彩链路.Checked = True And colorLinkDic.Exists(node(Source).setColor) = True Then
+        NodeEdit_ReviseNode target, node(target).t, node(target).content, colorLinkDic(node(Source).setColor), node(target).setSize
+    End If
 End Function
 Public Function LineAdd_RepeatedChecking(ByRef Source As Long, ByRef target As Long) As Long
 Dim i As Long

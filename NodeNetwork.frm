@@ -115,6 +115,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Private 大容量传输模式 As Boolean, 大容量字节数 As Long
+
 Private Sub Command1_Click()
     If Command1.Caption = "启动" Then
         Wsk.LocalPort = Val(PortBox.Text)
@@ -136,10 +138,20 @@ End Sub
 
 Private Sub Wsk_DataArrival(ByVal bytesTotal As Long)
     Dim 消息 As String, 反馈 As String
-    Wsk.GetData 消息
-    输出文本 时间合成(" - [消息]：", 消息) & vbCrLf
-    反馈 = 执行消息(消息)
-    Wsk.SendData 反馈
+    If 大容量传输模式 Then
+        If 大容量字节数 <= bytesTotal Then
+            Wsk.GetData 消息
+            输出文本 时间合成(" - [消息]：", "实际接收：" & bytesTotal) & vbCrLf
+            反馈 = 执行消息(消息)
+            Wsk.SendData 反馈
+            大容量传输模式 = False
+        End If
+    Else
+        Wsk.GetData 消息
+        输出文本 时间合成(" - [消息]：", 消息) & vbCrLf
+        反馈 = 执行消息(消息)
+        Wsk.SendData 反馈
+    End If
 End Sub
 Private Function 输出文本(s As String)
     On Error GoTo Er
@@ -153,7 +165,17 @@ End Function
 
 Private Function 执行消息(s As String) As String
     On Error GoTo Er:
-        执行消息 = CMD_In(s)
+        If Mid(s, 1, 12) = "启动大容量命令传输模式:" Then
+            大容量传输模式 = True
+            大容量字节数 = Val(Mid(s, 13))
+            执行消息 = "大容量命令传输模式准备就绪！准备接收：" & 大容量字节数 & "字节数据"
+        ElseIf Mid(LCase(s), 1, 43) = "start extra long command transmission mode:" Then
+            大容量传输模式 = True
+            大容量字节数 = Val(Mid(s, 44))
+            执行消息 = "Ready for long command transmission mode！Ready to receive:" & 大容量字节数 & " bytesTotal"
+        Else
+            执行消息 = CMD_In(s)
+        End If
     Exit Function
 Er:
     执行消息 = Err.Description

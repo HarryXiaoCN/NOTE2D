@@ -18,6 +18,7 @@ Public Function Updata()
         Updata_NodeMove
         Updata_SelectMove
 '        Updata_AllNodeMove
+        Updata_CoordinateSystemIndicator
         Updata_NodeLine
         Updata_Node
         Updata_FictitiousIndex
@@ -26,6 +27,12 @@ Public Function Updata()
         Updata_pilotLightColor
         Updata_ChildNodeVis
 End Function
+Public Sub Updata_CoordinateSystemIndicator()
+    If Note.放缩倍率显示标题.Visible Then
+        Note.Line (0, -angleOfView.Y)-(0, Note.height * zoomFactor - angleOfView.Y), nodeDefaultColor
+        Note.Line (-angleOfView.X, 0)-(Note.width * zoomFactor - angleOfView.X, 0), nodeDefaultColor
+    End If
+End Sub
 Public Sub Updata_FictitiousIndex()
     Dim i As Long, j As Long
     If fictitiousIndexLock Then
@@ -92,6 +99,11 @@ End Function
 Public Function Updata_pilotLightColor()
     Note.DrawWidth = 1
     Note.Line (Note.pilotLightX0 * zoomFactor - angleOfView.X, Note.pilotLightY0 * zoomFactor - angleOfView.Y)-(Note.pilotLightX1 * zoomFactor - angleOfView.X, Note.pilotLightY1 * zoomFactor - angleOfView.Y), Note.pilotLightColor, BF
+    If nodeCreativeMode Then
+        Note.CurrentX = -angleOfView.X
+        Note.CurrentY = -angleOfView.Y
+        Note.Print "创建模式中，ESC键退出。右键创建剩余节点，按住右键拖动按化整间距创建剩余节点。当前剩余节点个数：" & 获取创建节点列表剩余节点个数
+    End If
 End Function
 Public Function Updata_Colourful()
 If nodeTargetAim <> -1 And Note.彩虹圈.Checked = True Then
@@ -116,7 +128,7 @@ Public Function Updata_GetNodeTargetAim_TagVis()
 If Note.标签化.Checked = True Then
     If nodeTargetAim <> -1 Then
         Note.NodePrintBox.left = node(nodeTargetAim).X - Note.NodePrintBox.width / 2
-        Note.NodePrintBox.Top = node(nodeTargetAim).Y + Note.NodePrintBox.height + node(nodeTargetAim).setSize * 0.8
+        Note.NodePrintBox.Top = node(nodeTargetAim).Y - Note.NodePrintBox.height - node(nodeTargetAim).setSize * 0.8
         Note.NodePrintBox.Visible = True
     Else
         Note.NodePrintBox.Visible = False
@@ -270,10 +282,30 @@ Public Function Updata_Node()
         If node(i).b = True Then
             With node(i)
                 If Note.节点归整.Checked = True And mainFormMouseState = False Then
-                    .X = ((.X + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
-                    .Y = ((.Y + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
+                    If .X > 0 Then
+                        .X = ((.X + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
+                    Else
+                        .X = ((.X - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
+                    End If
+                    If .Y > 0 Then
+                        .Y = ((.Y + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
+                    Else
+                        .Y = ((.Y - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers
+                    End If
                 ElseIf Note.节点归整.Checked = True And mainFormMouseState = True And Note.矩线.Checked = True Then
-                    Note.Line (.X, .Y)-(((.X + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers, ((.Y + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers), 11206527
+                    If .X > 0 Then
+                        If .Y > 0 Then
+                            Note.Line (.X, .Y)-(((.X + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers, ((.Y + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers), 11206527
+                        Else
+                            Note.Line (.X, .Y)-(((.X + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers, ((.Y - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers), 11206527
+                        End If
+                    Else
+                        If .Y > 0 Then
+                            Note.Line (.X, .Y)-(((.X - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers, ((.Y + midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers), 11206527
+                        Else
+                            Note.Line (.X, .Y)-(((.X - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers, ((.Y - midNodeAT) \ nodeAttributedToIntegers) * nodeAttributedToIntegers), 11206527
+                        End If
+                    End If
                 End If
                 Updata_Node_SetColor i
                 If Note.显示全部节点名.Checked = True Or nodeTargetAim = i Then
@@ -323,7 +355,7 @@ Public Function Updata_Node_FormPrint(X As Single, Y As Single, t As String, Opt
     Note.CurrentX = X
     Note.CurrentY = Y
     If Note.精简内容.Checked Then
-        contentTemp = 富文本转义(c)
+        contentTemp = Replace(富文本转义(c), vbCrLf, "\n")
         If Len(contentTemp) > 10 Then
             Note.Print t & ":" & Mid(contentTemp, 1, 10) & "...."
         Else

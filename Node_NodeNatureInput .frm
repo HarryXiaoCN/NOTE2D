@@ -80,7 +80,7 @@ Begin VB.Form NodeInput
       Left            =   120
       TabIndex        =   0
       TabStop         =   0   'False
-      Text            =   "请输入节点标题..."
+      ToolTipText     =   "请输入节点标题..."
       Top             =   120
       Width           =   6000
    End
@@ -386,6 +386,7 @@ Begin VB.Form NodeInput
       End
       Begin VB.Menu 保持内容 
          Caption         =   "保持内容"
+         Checked         =   -1  'True
          Shortcut        =   ^K
       End
       Begin VB.Menu jdcut2 
@@ -516,7 +517,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private inputBoxContent As String, synchronizationState As String
-Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
     Label1.FontBold = True
 End Sub
 
@@ -580,9 +581,9 @@ Select Case KeyCode
 End Select
 End Sub
 
-Private Sub NodeInputBox_LostFocus()
-    If NodeInputBox.Text = "" Then NodeInputBox.Text = "请输入节点内容..."
-End Sub
+'Private Sub NodeInputBox_LostFocus()
+'    If NodeInputBox.Text = "" Then NodeInputBox.Text = "请输入节点内容..."
+'End Sub
 
 Private Sub NodeTitle_Change()
     Me.Caption = "节点名：" & NodeTitle.Text & synchronizationState
@@ -594,11 +595,22 @@ End Sub
 
 Private Sub NodeTitle_KeyDown(KeyCode As Integer, Shift As Integer)
     NodeInputBox_KeyDown KeyCode, Shift
+    If KeyCode = vbKeyTab Then
+        NodeInputBox.SetFocus
+        NodeInputBox.SelStart = 0
+        NodeInputBox.SelLength = Len(NodeInputBox.Text)
+    End If
 End Sub
 
-Private Sub NodeTitle_LostFocus()
-    If NodeTitle.Text = "" Then NodeTitle.Text = "请输入节点标题..."
+Private Sub NodeTitle_KeyPress(KeyAscii As Integer)
+    If KeyAscii = vbKeyTab Then
+        KeyAscii = 0
+    End If
 End Sub
+
+'Private Sub NodeTitle_LostFocus()
+'    If NodeTitle.Text = "" Then NodeTitle.Text = "请输入节点标题..."
+'End Sub
 
 Private Sub TxtCheck_Timer()
 On Error GoTo Er
@@ -630,9 +642,9 @@ Private Sub 保存_Click()
     Else
         If NodeEdit_ContentFilter(NodeInputBox.Text) Then
             NodeInputBox.Text = ""
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
+            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
         Else
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
+            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
         End If
     End If
     If 节点同步内容(0).Checked = True Or 节点同步内容(1).Checked = True Or 节点同步内容(2).Checked = True Or 节点同步内容(3).Checked = True Then
@@ -668,6 +680,7 @@ Private Sub 保存_Click()
     needUpdataNodePrint = True
     fictitiousIndexName = NodeTitle.Text
     FictitiousCheck
+    Note.SetFocus
 End Sub
 
 Private Sub 橙色_Click()

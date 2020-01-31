@@ -1,6 +1,7 @@
 Attribute VB_Name = "Note_Var"
 Public nodeSelectKeyDic As New Dictionary
 Public lineSelectKeyDic As New Dictionary
+Public colorLinkDic As New Dictionary
 
 Public lastNtx() As String
 Public oneselfAddX As Double, oneselfAddY As Double, oneselfAddI As Double
@@ -24,6 +25,7 @@ Public node() As 节点
 Public nodeLine() As 连接
 Public copyNodeList() As 节点
 Public copyLineList() As 连接
+Public NodeCreativeList() As 节点
 Public fictitiousNote() As 虚拟笔记
 
 Public nSum  As Long
@@ -34,6 +36,8 @@ Public NodeInputBackColor As Long
 Public copyNIdList() As Long
 Public copyLIdList() As Long
 Public rectangleLineColor As Long
+Public nodeCreativeListStart As Long
+Public nodeCreativeSourceId As Long
 
 Public nodeEditLock As Boolean '节点编辑锁
 Public nodeEditFormLock As Boolean '节点编辑窗体状态锁
@@ -48,6 +52,7 @@ Public nodePrintBeLock As Boolean
 Public iconCompatible As Boolean
 Public depthList() As Boolean
 Public childNodeVisLock As Boolean
+Public nodeCreativeMode As Boolean
 
 Public lineAddSource As Long
 Public nodeEditAim As Long
@@ -58,6 +63,7 @@ Public notePrintNodeId As Long
 Public bHLSum As Long
 Public redoSum As Long
 Public fictitiousRootNodeId As Long
+Public nodeDefaultColor As Long
 
 Public ntxPath As String
 Public ntxPathNoName As String
@@ -85,8 +91,8 @@ Public mousePos As 二维坐标
 Public mouseMapPos As 二维坐标
 Public lineAddStrat As 二维坐标
 Public angleOfView As 二维坐标
-
 Public mouseV3Pos As 三维坐标
+Public nodeCreativeStartPos As 二维坐标
 
 Public zoomFactor As Single
 Public magnification As Single
@@ -97,7 +103,7 @@ Public treeTxtToNtx_StartX As Single, treeTxtToNtx_StartY As Single, treeTxtToNt
 Public imageToNtx_StartX As Single, imageToNtx_StartY As Single, imageToNtx_StepX As Single, imageToNtx_StepY As Single
 
 Public Const PI As Double = 3.14159265358979
-Public Const VERSIONID As String = "Note2D_3"
+Public Const VERSIONID As String = "Note2D_4"
 Public Const NOTEFORMNAME As String = "节点笔记 - "
 Public LINEBREAK As String
 Public COPYLINEBREAK As String
@@ -118,6 +124,7 @@ Public Sub PublicVarLoad()
     KEYBREAK = Chr(5)
     VALUEBREAK = Chr(6)
     nodeDefaultSize = 100
+    nodeDefaultColor = &HFFBF00
     lineDefaultSize = 2
     nodeInputFormHeight = 9750
     nodeInputFormWidth = 6480
