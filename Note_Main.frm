@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
 Begin VB.Form Note 
    Appearance      =   0  'Flat
    AutoRedraw      =   -1  'True
@@ -309,13 +309,16 @@ Begin VB.Form Note
       Begin VB.Menu 另存为 
          Caption         =   "另存为"
       End
+      Begin VB.Menu 加密保存 
+         Caption         =   "加密"
+      End
       Begin VB.Menu wencut2 
          Caption         =   "-"
       End
       Begin VB.Menu 打印 
          Caption         =   "打印"
          Begin VB.Menu 打印成PNG图片 
-            Caption         =   "打印成PNG图片"
+            Caption         =   "打印成BMP图片"
          End
       End
       Begin VB.Menu Cut3 
@@ -401,6 +404,9 @@ Begin VB.Form Note
          End
          Begin VB.Menu Cut5 
             Caption         =   "-"
+         End
+         Begin VB.Menu 设置显示名长度 
+            Caption         =   "设置显示名长度"
          End
          Begin VB.Menu 显示节点遍历ID 
             Caption         =   "显示节点遍历ID"
@@ -504,6 +510,9 @@ Begin VB.Form Note
          Begin VB.Menu 背景色2 
             Caption         =   "背景色"
          End
+         Begin VB.Menu 保存后失去焦点 
+            Caption         =   "保存后失去焦点"
+         End
       End
       Begin VB.Menu 输出界面 
          Caption         =   "输出界面"
@@ -527,9 +536,15 @@ Begin VB.Form Note
                Caption         =   "全低透明"
             End
          End
+         Begin VB.Menu 关闭输出界面 
+            Caption         =   "关闭"
+         End
       End
       Begin VB.Menu jmcut2 
          Caption         =   "-"
+      End
+      Begin VB.Menu 附近节点高亮 
+         Caption         =   "附近节点高亮"
       End
       Begin VB.Menu 全局视图 
          Caption         =   "全局视图"
@@ -562,6 +577,21 @@ Begin VB.Form Note
       Begin VB.Menu 属性分拆 
          Caption         =   "属性分拆(T)"
       End
+      Begin VB.Menu 左右结合 
+         Caption         =   "左右结合(L)"
+      End
+      Begin VB.Menu 上下结合 
+         Caption         =   "上下结合(U)"
+      End
+      Begin VB.Menu 指定连接 
+         Caption         =   "指定源点(F)"
+      End
+      Begin VB.Menu 指定连接2 
+         Caption         =   "指定去点(G)"
+      End
+      Begin VB.Menu 激活引力 
+         Caption         =   "激活引力(B)"
+      End
       Begin VB.Menu czcut1 
          Caption         =   "-"
       End
@@ -573,6 +603,9 @@ Begin VB.Form Note
          Begin VB.Menu 左右翻转 
             Caption         =   "左右翻转"
          End
+      End
+      Begin VB.Menu 富文本恢复 
+         Caption         =   "富文本恢复"
       End
    End
    Begin VB.Menu 功能 
@@ -601,6 +634,9 @@ Begin VB.Form Note
          End
          Begin VB.Menu 导出TXT文章 
             Caption         =   "TXT文章"
+         End
+         Begin VB.Menu 导出为纯文本存档 
+            Caption         =   "导出为纯文本笔记"
          End
       End
       Begin VB.Menu gncut6 
@@ -631,6 +667,10 @@ Begin VB.Form Note
       Begin VB.Menu 色彩链路 
          Caption         =   "色彩链路"
       End
+      Begin VB.Menu 自建连接 
+         Caption         =   "自建连接"
+         Checked         =   -1  'True
+      End
       Begin VB.Menu Cut11 
          Caption         =   "-"
       End
@@ -639,6 +679,9 @@ Begin VB.Form Note
       End
       Begin VB.Menu 连接清单 
          Caption         =   "连接清单"
+      End
+      Begin VB.Menu 连接节点清单 
+         Caption         =   "连接节点清单"
       End
       Begin VB.Menu gncut3 
          Caption         =   "-"
@@ -657,6 +700,10 @@ Begin VB.Form Note
       End
       Begin VB.Menu 自动保存间隔 
          Caption         =   "自动保存间隔"
+      End
+      Begin VB.Menu 文件更改检测 
+         Caption         =   "文件更改检测"
+         Checked         =   -1  'True
       End
       Begin VB.Menu gncut5 
          Caption         =   "-"
@@ -711,6 +758,26 @@ Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
             Case vbKeyT
                 If Shift = 0 Then
                     属性分拆_Click
+                End If
+            Case vbKeyL
+                If Shift = 0 Then
+                    左右结合_Click
+                End If
+            Case vbKeyU
+                If Shift = 0 Then
+                    上下结合_Click
+                End If
+            Case vbKeyF
+                If Shift = 0 Then
+                    指定连接_Click
+                End If
+            Case vbKeyG
+                If Shift = 0 Then
+                    指定连接2_Click
+                End If
+            Case vbKeyB
+                If Shift = 0 Then
+                    激活引力_Click
                 End If
             Case 13 '回车
                 确认创建虚拟节点
@@ -782,11 +849,21 @@ Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
                 angleOfView.Y = 0
                 MainCoordinateSystemDefinition
             Case vbKeyF1
-                Note.left = 0
-                Note.Top = 0
+                If Me.WindowState = Normal Then
+                    Note.left = 0
+                    Note.Top = 0
+                End If
             Case vbKeyF2
-                Note.width = 19200
-                Note.height = 10800
+                If Me.WindowState = Normal Then
+                    Note.width = 19200
+                    Note.height = 10800
+                End If
+            Case vbKeyF3
+                If NodeInput.Visible Then
+                    NodeInput.left = Me.Top
+                    NodeInput.Top = Me.left
+                    NodeInput.Show
+                End If
         End Select
     End If
 End Sub
@@ -987,7 +1064,7 @@ Private Sub 节点连接大小变化(点增量 As Single, 线增量 As Single)
     For i = 0 To lSum
         With nodeLine(i)
             If .b Then
-                If .select Then
+                If .select = True Or lineTargetAim = i Then
                     .size = .size + 线增量
                     If .size > 10 Then
                         .size = 10
@@ -1004,7 +1081,7 @@ Private Sub 连接内容赋予(内容 As String)
     For i = 0 To lSum
         With nodeLine(i)
             If .b Then
-                If .select Then
+                If .select = True Or lineTargetAim = i Then
                     .content = 内容
                 End If
             End If
@@ -1045,12 +1122,12 @@ Private Sub Form_Load()
     子节点视图标题栏.Scale (0, 子节点视图标题栏.height)-(子节点视图标题栏.width, 0)
     If 标签化.Checked = False Then NodePrint.Show
     If Command <> "" Then
-        pilotLightColor = RGB(0, 255, 0)
+        pilotLightColor = 65280
         dirPath = Replace(Command, """", "")
 '        MsgBox dirPath
         NoteFileRead dirPath
     Else
-        pilotLightColor = RGB(255, 0, 0)
+        pilotLightColor = 255
         newAddNote
     End If
     FictitiousNtxLoad
@@ -1085,7 +1162,7 @@ Select Case Button
                         Else
                             BehaviorIdSet
                             If lineAddSource <> nodeClickAim Then
-                                LineAdd lineAddSource, nodeClickAim, "", lineDefaultSize
+                                LineAdd lineAddSource, nodeClickAim, "", lineDefaultSize, , , True
                             End If
                             lineAddLock = False
                         End If
@@ -1140,7 +1217,11 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As 
 End Sub
 
 Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+    On Error GoTo Er:
     NoteFileRead Data.Files(1)
+    Exit Sub
+Er:
+    MsgBox "无效拖入！", 16
 End Sub
 
 Private Sub Form_Resize()
@@ -1160,6 +1241,9 @@ Private Sub Form_Resize()
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
+    If LineNodeListForm.Visible Then
+        Unload LineNodeListForm
+    End If
     SaveProfile
     'UnHookMouse Me.hWnd
     If App.LogMode <> 0 Then
@@ -1211,14 +1295,18 @@ Private Sub NodePrintBox_KeyPress(KeyAscii As Integer)
 End Sub
 
 Private Sub PLC_Timer()
-    Select Case noteSaveCheck
-        Case 0
-            pilotLightColor = RGB(255, 0, 0)
-        Case 1
-            pilotLightColor = RGB(255, 165, 0)
-        Case 2
-            pilotLightColor = RGB(0, 255, 0)
-    End Select
+    If 文件更改检测.Checked Then
+        Select Case noteSaveCheck
+            Case 0
+                pilotLightColor = 255
+            Case 1
+                pilotLightColor = 42495 '黄
+            Case 2
+                pilotLightColor = 65280 '绿
+        End Select
+    Else
+        pilotLightColor = 42495
+    End If
     On Error GoTo Er
         If Clipboard.GetText = "" Then 粘贴.Enabled = False Else 粘贴.Enabled = True
         If bHLSum < 1 Then 撤销.Enabled = False Else 撤销.Enabled = True
@@ -1233,7 +1321,7 @@ Private Sub PLC_Timer()
         菜单单项控制
         If saveNtxTime <> 0 Then
             saveNtxTimeNow = saveNtxTimeNow + 0.5
-            If saveNtxTimeNow > saveNtxTime And pilotLightColor = RGB(255, 165, 0) Then
+            If saveNtxTimeNow > saveNtxTime And pilotLightColor = 42495 Then
                 保存笔记_Click
                 saveNtxTimeNow = 0
             End If
@@ -1295,6 +1383,10 @@ Private Sub 保存笔记_Click()
 Exit Sub
 Er:
     MsgBox "保存笔记失败，原因：" & Err.Description, 16, "保存笔记"
+End Sub
+
+Private Sub 保存后失去焦点_Click()
+    保存后失去焦点.Checked = Not 保存后失去焦点.Checked
 End Sub
 
 Private Sub 背景色_Click()
@@ -1433,7 +1525,7 @@ End Sub
 Private Sub 打印成PNG图片_Click()
     Dim fP As String
     On Error GoTo Er:
-        fP = 对话框选取保存文件路径("图片 (*.png)|*.png")
+        fP = 对话框选取保存文件路径("图片 (*.bmp)|*.bmp")
         If fP <> "" Then
             NotePrint 打印缓存器
             SavePicture 打印缓存器.image, fP
@@ -1476,6 +1568,19 @@ Private Function 节点转文章(outS As String, sNid As Long)
         End With
     Next
 End Function
+
+Private Sub 导出为纯文本存档_Click()
+    Dim filePath As String
+    On Error GoTo Er
+    filePath = 对话框选取保存文件路径("文本文档 (*.txt)|*.txt|所有文件 (*.*)|*.*")
+    纯文本保存 = True
+    If filePath <> "" Then NoteFileWrite_204 filePath
+    纯文本保存 = False
+    Exit Sub
+Er:
+    纯文本保存 = False
+    MsgBox "导出为纯文本笔记，原因：" & Err.Description, 16, "另存为纯文本笔记"
+End Sub
 
 Private Sub 导出位图_Click()
     Dim filePath As String, nIdTemp As Long
@@ -1567,6 +1672,10 @@ Er:
     MsgBox "导入失败，原因：" & Err.Description, 16, "导入文本文件"
 End Sub
 
+Private Sub 附近节点高亮_Click()
+    附近节点高亮.Checked = Not 附近节点高亮.Checked
+End Sub
+
 Private Sub 复制_Click()
     CopyObject False
 End Sub
@@ -1578,13 +1687,35 @@ Private Function nodeToTxt() As String
             If .b = True Then
                 If .select = True Or i = nodeTargetAim Then
                     RTBtemp.TextRTF = .content
-                    nodeToTxt = nodeToTxt & Chr(34) & .t & """ : """ & RTBtemp.Text & """ , "
+                    nodeToTxt = nodeToTxt & Chr(34) & .t & """ : """ & RTBtemp.text & """ , "
                 End If
             End If
         End With
     Next
     nodeToTxt = Mid(nodeToTxt, 1, Len(nodeToTxt) - 2)
 End Function
+
+Private Sub 富文本恢复_Click()
+    Dim i As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                .t = 富文本转义(.t)
+            End If
+        End With
+    Next
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True And .select = True Then
+                .content = 富文本转义(.content)
+            End If
+        End With
+    Next
+End Sub
+
+Private Sub 关闭输出界面_Click()
+    关闭输出界面.Checked = Not 关闭输出界面.Checked
+End Sub
 
 Private Sub 关于节点笔记_Click()
     AboutNote.Show
@@ -1596,6 +1727,42 @@ Private Sub 绘图刷新间隔_Click()
     If promptBoxSelect = 0 Then
         updataSpeed = 限制数值(Val(sT), 10, 100)
         MainTime.interval = updataSpeed
+    End If
+End Sub
+
+Private Sub 激活引力_Click()
+    Dim i As Long, sT As String
+    sT = Val(InBox("请输入引力源类型(0:取消选中引力源,1:选中作为源,2:选中作为去)：", 1))
+    If promptBoxSelect = 0 Then
+        For i = 0 To nSum
+            With node(i)
+                If .b = True And (.select = True Or i = nodeTargetAim) Then
+                    If sT = 1 Then
+                        .gSource = True
+                        .gTarget = False
+                    ElseIf sT = 2 Then
+                        .gSource = False
+                        .gTarget = True
+                    Else
+                        .gSource = False
+                        .gTarget = False
+                    End If
+                End If
+            End With
+        Next
+    End If
+End Sub
+
+Private Sub 加密保存_Click()
+    Dim 缓存 As String
+    加密保存.Checked = Not 加密保存.Checked
+    If 加密保存.Checked Then
+        缓存 = InBox("请输入加密密匙：")
+        If promptBoxSelect = 0 Then
+            ntxKey = 缓存
+        Else
+            加密保存.Checked = False
+        End If
     End If
 End Sub
 
@@ -1649,8 +1816,37 @@ Private Sub 节点分拆_Click()
     End If
 End Sub
 
+Private Sub 连接节点清单_Click()
+    连接节点清单.Checked = Not 连接节点清单.Checked
+End Sub
+
 Private Sub 色彩链路_Click()
     色彩链路.Checked = Not 色彩链路.Checked
+End Sub
+
+Private Sub 上下结合_Click()
+    Dim nT As String, nC As String, 缓存 As String, nId As Long, i As Long
+    缓存 = InBox("请输入合并分隔字符：")
+    If promptBoxSelect = 0 Then
+        上下结合节点 缓存, nT, nC
+        BehaviorIdSet
+        nId = NodeEdit_NewNode(nT, nC, nodeDefaultColor, nodeDefaultSize, mousePos.X, mousePos.Y, False)
+        For i = 0 To nSum
+            With node(i)
+                If .b = True And (.select = True Or i = nodeTargetAim) Then
+                    LineAdd i, nId, "", lineDefaultSize, , , True
+                End If
+            End With
+        Next
+    End If
+End Sub
+
+Private Sub 设置显示名长度_Click()
+    Dim 缓存 As Long
+    缓存 = Val(InBox("请输入显示的节点名长度：", visNodeNameLength))
+    If promptBoxSelect = 0 Then
+        visNodeNameLength = 限制数值(缓存, 0, 100)
+    End If
 End Sub
 
 Private Sub 属性分拆_Click()
@@ -1661,7 +1857,7 @@ Private Sub 属性分拆_Click()
                 If .select = True Or i = nodeTargetAim Then
                     nodeCreativeSourceId = i
                     nodeCreativeListStart = 1
-                    sT = Split(富文本转义(.content), vbCrLf)
+                    sT = Split(.text, vbCrLf)
                     ReDim NodeCreativeList(0)
                     For j = 0 To UBound(sT)
                         If sT(j) <> "" Then
@@ -1894,6 +2090,10 @@ Private Sub 位图输出器_MouseMove(Button As Integer, Shift As Integer, X As Singl
     Debug.Print X; ; Y
 End Sub
 
+Private Sub 文件更改检测_Click()
+    文件更改检测.Checked = Not 文件更改检测.Checked
+End Sub
+
 Private Sub 文字颜色_Click()
     With CommonDialog1
         .Flags = 1
@@ -2000,13 +2200,55 @@ Private Sub 粘贴_Click()
     PasteObject
 End Sub
 
+Private Sub 指定连接_Click()
+    specifyingConnectionNodeId_s = 未选中代替(nodeTargetAim)
+    If specifyingConnectionNodeId_s <> specifyingConnectionNodeId_t Then
+        If specifyingConnectionNodeId_s <> -1 Then
+            If node(specifyingConnectionNodeId_s).b Then
+                MsgBox "→指定连接【源】节点成功！" & vbCrLf _
+                     & "节点ID：" & specifyingConnectionNodeId_s & vbCrLf _
+                     & "节点名：" & node(specifyingConnectionNodeId_s).t, 64, "提示"
+            Else
+                specifyingConnectionNodeId_s = -1
+                MsgBox "→指定连接【源】节点失败，节点不存在！", 64, "提示"
+            End If
+        Else
+            MsgBox "→已取消指定连接【源】节点！", 64, "提示"
+        End If
+    Else
+        specifyingConnectionNodeId_s = -1
+        MsgBox "指定连接【源】节点与【去】节点相同，指定失败！", 64, "提示"
+    End If
+End Sub
+
+Private Sub 指定连接2_Click()
+    specifyingConnectionNodeId_t = 未选中代替(nodeTargetAim)
+    If specifyingConnectionNodeId_s <> specifyingConnectionNodeId_t Then
+        If specifyingConnectionNodeId_t <> -1 Then
+            If node(specifyingConnectionNodeId_t).b Then
+                MsgBox "←指定连接【去】节点成功！！" & vbCrLf _
+                     & "节点ID：" & specifyingConnectionNodeId_t & vbCrLf _
+                     & "节点名：" & node(specifyingConnectionNodeId_t).t, 64, "提示"
+            Else
+                specifyingConnectionNodeId_t = -1
+                MsgBox "→指定连接【去】节点失败，节点不存在！", 64, "提示"
+            End If
+        Else
+            MsgBox "←已取消指定连接【去】节点！", 64, "提示"
+        End If
+    Else
+        specifyingConnectionNodeId_t = -1
+        MsgBox "指定连接【源】节点与【去】节点相同，指定失败！", 64, "提示"
+    End If
+End Sub
+
 Private Sub 置顶_Click()
-If 置顶.Checked = True Then
-    置顶.Checked = False: FormStick NodePrint, False
-Else
-    置顶.Checked = True: FormStick NodePrint, True
-End If
-Me.SetFocus
+    If 置顶.Checked = True Then
+        置顶.Checked = False: FormStick NodePrint, False
+    Else
+        置顶.Checked = True: FormStick NodePrint, True
+    End If
+    Me.SetFocus
 End Sub
 
 Private Sub 重做_Click()
@@ -2100,6 +2342,10 @@ Er:
     saveNtxTime = 0
 End Sub
 
+Private Sub 自建连接_Click()
+    自建连接.Checked = Not 自建连接.Checked
+End Sub
+
 Private Sub 字体_Click()
 On Error GoTo Er
 With CommonDialog1
@@ -2132,13 +2378,119 @@ Private Sub 左右翻转_Click()
     Next
 End Sub
 
+Private Sub 左右结合_Click()
+    Dim nT As String, nC As String, 缓存 As String, nId As Long, i As Long
+    缓存 = InBox("请输入合并分隔字符：")
+    If promptBoxSelect = 0 Then
+        左右结合节点 缓存, nT, nC
+        BehaviorIdSet
+        nId = NodeEdit_NewNode(nT, nC, nodeDefaultColor, nodeDefaultSize, mousePos.X, mousePos.Y, False)
+        For i = 0 To nSum
+            With node(i)
+                If .b = True And (.select = True Or i = nodeTargetAim) Then
+                    LineAdd i, nId, "", lineDefaultSize, , , True
+                End If
+            End With
+        Next
+    End If
+End Sub
+Private Sub 上下结合节点(d As String, nT As String, nC As String)
+    Dim i As Long, Index() As String, indexC() As String, min As Long, max As Long, s As Long, tmp As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                min = Int(.Y)
+                max = Int(.Y)
+                s = i
+                Exit For
+            End If
+        End With
+    Next
+    For i = s + 1 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                tmp = Int(.Y)
+                If min > tmp Then
+                    min = tmp
+                End If
+                If max < tmp Then
+                    max = tmp
+                End If
+            End If
+        End With
+    Next
+    ReDim Index(min To max), indexC(min To max)
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                Index(Int(.Y)) = Index(Int(.Y)) & .t & d
+                indexC(Int(.Y)) = indexC(Int(.Y)) & .t & vbCrLf & .text & vbCrLf
+            End If
+        End With
+    Next
+    For i = min To max
+        If Index(i) <> "" Then
+            nT = nT & Index(i)
+        End If
+        If indexC(i) <> "" Then
+            nC = nC & indexC(i)
+        End If
+    Next
+    nT = Mid(nT, 1, Len(nT) - Len(d))
+End Sub
+Private Sub 左右结合节点(d As String, nT As String, nC As String)
+    Dim i As Long, Index() As String, indexC() As String, min As Long, max As Long, s As Long, tmp As Long
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                min = Int(.X)
+                max = Int(.X)
+                s = i
+                Exit For
+            End If
+        End With
+    Next
+    For i = s + 1 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                tmp = Int(.X)
+                If min > tmp Then
+                    min = tmp
+                End If
+                If max < tmp Then
+                    max = tmp
+                End If
+            End If
+        End With
+    Next
+    ReDim Index(min To max), indexC(min To max)
+    For i = 0 To nSum
+        With node(i)
+            If .b = True And (.select = True Or i = nodeTargetAim) Then
+                Index(Int(.X)) = Index(Int(.X)) & .t & d
+                indexC(Int(.X)) = indexC(Int(.X)) & .t & vbCrLf & .text & vbCrLf
+            End If
+        End With
+    Next
+    For i = min To max
+        If Index(i) <> "" Then
+            nT = nT & Index(i)
+        End If
+        If indexC(i) <> "" Then
+            nC = nC & indexC(i)
+        End If
+    Next
+    nT = Mid(nT, 1, Len(nT) - Len(d))
+End Sub
 Private Sub 坐标化整_Click()
-'    On Error GoTo Er
-    nodeAttributedToIntegers = Val(InBox("请输入化整数量级：", nodeAttributedToIntegers))
-'    If promptBoxSelect = 0 Then
-'        NodePositionVague nodeAttributedToIntegers
-'    End If
-'    Exit Sub
-'Er:
-'    MsgBox "坐标化整失败，原因：" & Err.Description, 16, "坐标化整"
+    Dim temp As Long
+    On Error GoTo Er
+        temp = Val(InBox("请输入化整数量级：", nodeAttributedToIntegers))
+        If promptBoxSelect = 0 And temp > 0 Then
+            nodeAttributedToIntegers = temp
+            NodePositionVague nodeAttributedToIntegers
+        End If
+    Exit Sub
+Er:
+    MsgBox "坐标化整失败，原因：" & Err.Description, 16, "坐标化整"
 End Sub

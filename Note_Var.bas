@@ -13,13 +13,18 @@ Public nodeInputFormHeight As Single
 Public nodeInputFormWidth As Single
 Public nodeInputFormTop As Single
 Public nodeInputFormLeft As Single
+Public lineNodeListFormTop As Single
+Public lineNodeListFormLeft As Single
 
 Public 节点列表更新锁 As Boolean
 Public 连接列表更新锁 As Boolean
 Public needUpdataNodePrint As Boolean
 Public fictitiousIndexLock As Boolean
-
+Public keepNodeContentLock As Boolean
+Public manuallyEstablishedLock As Boolean
 Public mainFormMouseState As Boolean
+
+Public 纯文本保存 As Boolean
 
 Public node() As 节点
 Public nodeLine() As 连接
@@ -38,6 +43,7 @@ Public copyLIdList() As Long
 Public rectangleLineColor As Long
 Public nodeCreativeListStart As Long
 Public nodeCreativeSourceId As Long
+Public visNodeNameLength As Long
 
 Public nodeEditLock As Boolean '节点编辑锁
 Public nodeEditFormLock As Boolean '节点编辑窗体状态锁
@@ -53,18 +59,25 @@ Public iconCompatible As Boolean
 Public depthList() As Boolean
 Public childNodeVisLock As Boolean
 Public nodeCreativeMode As Boolean
+Public orderConnectPreviousNodeLock As Boolean
+Public reverseConnectPreviousNodeLock As Boolean
 
 Public lineAddSource As Long
 Public nodeEditAim As Long
+Public nodePreviousEditAim As Long
 Public nodeMoveAim As Long
 Public nodeClickAim As Long
 Public nodeTargetAim As Long
+Public lineTargetAim As Long
 Public notePrintNodeId As Long
 Public bHLSum As Long
 Public redoSum As Long
 Public fictitiousRootNodeId As Long
 Public nodeDefaultColor As Long
+Public specifyingConnectionNodeId_s As Long '指定连接节点ID
+Public specifyingConnectionNodeId_t As Long '指定连接节点ID
 
+Public ntxKey As String
 Public ntxPath As String
 Public ntxPathNoName As String
 Public meExeId As String
@@ -128,10 +141,13 @@ Public Sub PublicVarLoad()
     lineDefaultSize = 2
     nodeInputFormHeight = 9750
     nodeInputFormWidth = 6480
+    lineNodeListFormTop = 1000
+    lineNodeListFormLeft = 1000
     treeTxtToNtx_StartX = 1000
     treeTxtToNtx_StartY = 1000
     treeTxtToNtx_StepX = 1500
     treeTxtToNtx_StepY = 1000
+    keepNodeContentLock = True
     
     rectangleLineColor = 16443110
     nodeAttributedToIntegers = 3000

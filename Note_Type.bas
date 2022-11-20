@@ -12,6 +12,13 @@ Public Type ½Úµã
     size As Single
     setSize As Single
     content As String
+    text As String
+    gSource As Boolean
+    gTarget As Boolean
+    gravitational_s_name As String
+    gravitational_s_text As String
+    gravitational_t_name As String
+    gravitational_t_text As String
     color As Long
     setColor As Long
 End Type

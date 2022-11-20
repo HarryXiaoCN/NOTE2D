@@ -15,8 +15,8 @@ Public Function LoadProfile()
 Er:
 End Function
 Public Function LoadProfile_InitializationBool()
-Note.显示全部节点名.Checked = False
-Note.显示全部连接.Checked = False
+    Note.显示全部节点名.Checked = False
+    Note.显示全部连接.Checked = False
 End Function
 Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
     Dim ESRStr As String: Dim ESRBool As Boolean
@@ -38,6 +38,8 @@ Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
         Note.显示顺向连接.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "显示逆向连接=") Then
         Note.显示逆向连接.Checked = ESRBool
+    ElseIf InStr(1, lineTmp, "显示节点名长度=") Then
+        visNodeNameLength = Val(ESRStr)
     ElseIf InStr(1, lineTmp, "始终显示选接=") Then
         Note.始终显示选接.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "全局视图=") Then
@@ -91,8 +93,12 @@ Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
         Note.全低透明3.Checked = ESRBool: FormTransparent NodePrint, 200
     ElseIf InStr(1, lineTmp, "输出界面置顶=") Then
         Note.置顶.Checked = ESRBool: FormStick NodePrint, ESRBool
+    ElseIf InStr(1, lineTmp, "关闭输出界面=") Then
+        Note.关闭输出界面.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "标签化=") Then
         Note.标签化.Checked = ESRBool
+    ElseIf InStr(1, lineTmp, "附近高亮=") Then
+        Note.附近节点高亮.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "创建模式=") Then
         Note.创建模式.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "输入界面高=") Then
@@ -122,6 +128,18 @@ Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
         Note.精简内容.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "色彩链路显示=") Then
         Note.色彩链路.Checked = ESRBool
+    ElseIf InStr(1, lineTmp, "自建连接=") Then
+        Note.自建连接.Checked = ESRBool
+    ElseIf InStr(1, lineTmp, "保持内容=") Then
+        keepNodeContentLock = ESRBool
+    ElseIf InStr(1, lineTmp, "连接节点清单=") Then
+        Note.连接节点清单.Checked = ESRBool
+    ElseIf InStr(1, lineTmp, "自连上节点=") Then
+        orderConnectPreviousNodeLock = ESRBool
+    ElseIf InStr(1, lineTmp, "自连上节点2=") Then
+        reverseConnectPreviousNodeLock = ESRBool
+    ElseIf InStr(1, lineTmp, "文件更改检测=") Then
+        Note.文件更改检测.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "长=") Then
         Note.width = Val(ESRStr)
     ElseIf InStr(1, lineTmp, "宽=") Then
@@ -130,12 +148,20 @@ Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
         Note.left = Val(ESRStr)
     ElseIf InStr(1, lineTmp, "主界面Y位置=") Then
         Note.Top = Val(ESRStr)
+    ElseIf InStr(1, lineTmp, "连接节点列表窗口X位置=") Then
+        lineNodeListFormLeft = Val(ESRStr)
+    ElseIf InStr(1, lineTmp, "连接节点列表窗口Y位置=") Then
+        lineNodeListFormTop = Val(ESRStr)
     ElseIf InStr(1, lineTmp, "输入X位置=") Then
         nodeInputFormLeft = Val(ESRStr)
+        If nodeInputFormLeft < 0 Then nodeInputFormLeft = 0
     ElseIf InStr(1, lineTmp, "输入Y位置=") Then
         nodeInputFormTop = Val(ESRStr)
+        If nodeInputFormTop < 0 Then nodeInputFormTop = 0
     ElseIf InStr(1, lineTmp, "色彩链路=") Then
         色彩链路字典修改 ESRStr
+    ElseIf InStr(1, lineTmp, "输入保存失焦=") Then
+        Note.保存后失去焦点.Checked = ESRBool
     End If
 End Function
 
@@ -149,14 +175,13 @@ End Function
 Public Function SaveProfile()
     Dim profileStr As String: Dim i As Long
     On Error GoTo Er
-        profileStr = "-视图-" & vbCrLf _
-        & "[节点名显示]" & vbCrLf & SaveProfile_GetTrueNodeViewName _
-        & vbCrLf & "始终显示选点名=" & Note.始终显示选点名.Checked _
+        profileStr = "[节点名显示]" & vbCrLf & SaveProfile_GetTrueNodeViewName _
+        & vbCrLf & "始终显示选点名=" & Note.始终显示选点名.Checked & vbCrLf & "显示节点名长度=" & visNodeNameLength _
         & vbCrLf & "显示节点遍历ID=" & Note.显示节点遍历ID.Checked _
         & vbCrLf & "[节点连接显示]" & vbCrLf & SaveProfile_GetTrueLineViewName _
         & vbCrLf & "始终显示选接=" & Note.始终显示选接.Checked _
         & vbCrLf & "全局视图=" & Note.全局视图.Checked _
-        & vbCrLf & "-界面-" & vbCrLf & "[主界面]" _
+        & vbCrLf & "[主界面]" _
         & vbCrLf & "字体=" & Note.Font.name _
         & vbCrLf & "字号=" & MainFormFontSize _
         & vbCrLf & "加粗=" & Note.Font.Bold _
@@ -169,15 +194,16 @@ Public Function SaveProfile()
         & vbCrLf & "彩虹线=" & Note.彩虹线.Checked _
         & vbCrLf & "流光溢彩=" & Note.流光溢彩.Checked _
         & vbCrLf & "[输入界面]" _
-        & vbCrLf & SaveProfile_GetTrueTransparent2ViewName _
-        & vbCrLf & "输入界面背景色=" & NodeInputBackColor & vbCrLf & "标签化=" & Note.标签化.Checked _
+        & vbCrLf & SaveProfile_GetTrueTransparent2ViewName & vbCrLf & "保持内容=" & keepNodeContentLock & vbCrLf & "自连上节点=" & orderConnectPreviousNodeLock _
+        & vbCrLf & "输入界面背景色=" & NodeInputBackColor & vbCrLf & "标签化=" & Note.标签化.Checked & vbCrLf & "自连上节点2=" & reverseConnectPreviousNodeLock _
         & vbCrLf & "[输出界面]" & vbCrLf & SaveProfile_GetTrueTransparent3ViewName _
-        & vbCrLf & "输出界面置顶=" & Note.置顶.Checked & vbCrLf & "-系统-" & vbCrLf & "输入界面高=" & nodeInputFormHeight & vbCrLf & "输入界面宽=" & nodeInputFormWidth _
+        & vbCrLf & "输出界面置顶=" & Note.置顶.Checked & vbCrLf & "输入界面高=" & nodeInputFormHeight & vbCrLf & "输入界面宽=" & nodeInputFormWidth & vbCrLf & "关闭输出界面=" & Note.关闭输出界面.Checked _
         & vbCrLf & "自动保存时间间隔=" & saveNtxTime & vbCrLf & "绘图间隔=" & Note.updataSpeed & vbCrLf & "节点默认大小=" & nodeDefaultSize & vbCrLf & "连接默认宽度=" & lineDefaultSize & vbCrLf
-        profileStr = profileStr & "-系统-" & vbCrLf _
-        & vbCrLf & "矩线颜色=" & rectangleLineColor _
+        profileStr = profileStr & "矩线颜色=" & rectangleLineColor _
+        & vbCrLf & "输入保存失焦=" & Note.保存后失去焦点.Checked _
         & vbCrLf & "节点归整长度=" & nodeAttributedToIntegers _
         & vbCrLf & "节点归整=" & Note.节点归整.Checked _
+        & vbCrLf & "附近高亮=" & Note.附近节点高亮.Checked _
         & vbCrLf & "长=" & Note.width _
         & vbCrLf & "宽=" & Note.height _
         & vbCrLf & "主界面X位置=" & Note.left _
@@ -186,7 +212,12 @@ Public Function SaveProfile()
         & vbCrLf & "输入Y位置=" & NodeInput.Top _
         & vbCrLf & "创建模式=" & Note.创建模式.Checked _
         & vbCrLf & "色彩链路=" & 色彩链路字典导出 _
-        & vbCrLf & "色彩链路显示=" & Note.色彩链路.Checked
+        & vbCrLf & "色彩链路显示=" & Note.色彩链路.Checked _
+        & vbCrLf & "自建连接=" & Note.自建连接.Checked _
+        & vbCrLf & "连接节点列表窗口X位置=" & lineNodeListFormLeft _
+        & vbCrLf & "连接节点列表窗口Y位置=" & lineNodeListFormTop _
+        & vbCrLf & "连接节点清单=" & Note.连接节点清单.Checked _
+        & vbCrLf & "文件更改检测=" & Note.文件更改检测.Checked
         '& vbCrLf & "-系统-" & vbCrLf & "放缩率=" & magnification
         If Dir(ProfilePath, vbDirectory) = "" Then
             Shell "cmd /c md """ & ProfilePath & """", vbHide
@@ -203,55 +234,73 @@ Public Function SaveProfile()
         Open ProfilePath & PROFILENAME For Output As #3
             Print #3, profileStr
         Close #3
-        SetAttr ProfilePath & PROFILENAME, vbReadOnly
+'        SetAttr ProfilePath & PROFILENAME, vbReadOnly '设置文件为只读属性
     Exit Function
 Er:
     MsgBox "程序配置文件保存失败！请检查路径" & ProfilePath & "是否存在。", , "警告！"
 End Function
 Public Function SaveProfile_GetTrueTransparent3ViewName() As String
-If Note.全高透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全高透明=True": Exit Function
-If Note.全半透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全半透明=True": Exit Function
-If Note.全低透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全低透明=True": Exit Function
+    If Note.全高透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全高透明=True": Exit Function
+    If Note.全半透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全半透明=True": Exit Function
+    If Note.全低透明3.Checked = True Then SaveProfile_GetTrueTransparent3ViewName = "输出界面全低透明=True": Exit Function
 End Function
 Public Function SaveProfile_GetTrueTransparent2ViewName() As String
-If Note.全高透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全高透明=True": Exit Function
-If Note.全半透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全半透明=True": Exit Function
-If Note.全低透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全低透明=True": Exit Function
+    If Note.全高透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全高透明=True": Exit Function
+    If Note.全半透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全半透明=True": Exit Function
+    If Note.全低透明2.Checked = True Then SaveProfile_GetTrueTransparent2ViewName = "输入界面全低透明=True": Exit Function
 End Function
 Public Function SaveProfile_GetTrueTransparentViewName() As String
-If Note.全高透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全高透明=True": Exit Function
-If Note.全半透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全半透明=True": Exit Function
-If Note.全低透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全低透明=True": Exit Function
+    If Note.全高透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全高透明=True": Exit Function
+    If Note.全半透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全半透明=True": Exit Function
+    If Note.全低透明.Checked = True Then SaveProfile_GetTrueTransparentViewName = "主界面全低透明=True": Exit Function
 End Function
 Public Function SaveProfile_GetTrueNodeViewName() As String
-If Note.显示全部节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示全部节点名=True": Exit Function
-If Note.显示顺向节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示顺向节点名=True": Exit Function
-If Note.显示逆向节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示逆向节点名=True": Exit Function
+    If Note.显示全部节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示全部节点名=True": Exit Function
+    If Note.显示顺向节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示顺向节点名=True": Exit Function
+    If Note.显示逆向节点名.Checked = True Then SaveProfile_GetTrueNodeViewName = "显示逆向节点名=True": Exit Function
 End Function
 Public Function SaveProfile_GetTrueLineViewName() As String
-If Note.显示全部连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示全部连接=True": Exit Function
-If Note.显示顺向连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示顺向连接=True": Exit Function
-If Note.显示逆向连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示逆向连接=True": Exit Function
+    If Note.显示全部连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示全部连接=True": Exit Function
+    If Note.显示顺向连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示顺向连接=True": Exit Function
+    If Note.显示逆向连接.Checked = True Then SaveProfile_GetTrueLineViewName = "显示逆向连接=True": Exit Function
 End Function
 Public Function NoteFileRead(ByRef filePath As String)
-Dim ntx() As String: Dim i As Long, version As Long
-newAddNote
-On Error GoTo Er
-    ntxPath = filePath
-    ntxPathNoName = 去除路径文件名(ntxPath)
-    Note.Caption = NOTEFORMNAME & ntxPath
-    Open filePath For Input As #1
-            Do While Not EOF(1)
-                ReDim Preserve ntx(i)
-                Line Input #1, ntx(i)
-                If ntx(i) = "" Then Exit Do
-                i = i + 1
-            Loop
-    Close #1
-    version = NoteFileRead_VersionCheck(ntx(0))
+    Dim ntx() As String, i As Long, version As Long
+    newAddNote
+    On Error GoTo Er
+        ntxPath = filePath
+        ntxPathNoName = 去除路径文件名(ntxPath)
+        Note.Caption = NOTEFORMNAME & ntxPath
+        Open filePath For Input As #1
+                Do While Not EOF(1)
+                    ReDim Preserve ntx(i)
+                    Line Input #1, ntx(i)
+                    If ntx(i) = "" Then Exit Do
+                    i = i + 1
+                Loop
+        Close #1
+        version = NoteFileRead_VersionCheck(ntx(0))
+        If Note.加密保存.Checked = False Then
+            NoteFileRead_SelectVersion version, ntx
+        Else
+            NtxDecoding ntx
+            NoteFileRead_SelectVersion version, ntx
+        End If
+        Note.MainTime.Enabled = True
+    Exit Function
+Er:
+    MsgBox "文件读取失败，原因：" & Err.Description, 16, "错误"
+End Function
+Public Sub NtxDecoding(ntx() As String)
+    Dim i As Long
+    For i = 0 To UBound(ntx)
+        ntx(i) = 加密(ntx(i), ntxKey)
+    Next
+End Sub
+Public Sub NoteFileRead_SelectVersion(version As Long, ntx() As String)
     Select Case version
         Case -1
-            MsgBox "文件无法识别！", , "警告！"
+            MsgBox "文件无法识别！", 16, "警告！"
             newAddNote
         Case 201
             NoteFileRead_201 ntx, False
@@ -267,11 +316,7 @@ On Error GoTo Er
         Case 301
             NoteFileRead_301 ntx
     End Select
-    Note.MainTime.Enabled = True
-Exit Function
-Er:
-    MsgBox "文件读取失败，原因：" & Err.Description, 16, "错误"
-End Function
+End Sub
 Public Function NoteFileRead_204(ByRef ntx() As String, ByRef fromCopy As Boolean)
     Dim i As Long, nodeSum As Long, lineSum As Long, startNodeId As Long: Dim lineTmp() As String
     lineTmp = Split(ntx(0), LINEBREAK)
@@ -291,53 +336,76 @@ Public Function NoteFileRead_204(ByRef ntx() As String, ByRef fromCopy As Boolea
         End If
     End If
     startNodeId = nSum
+    If Note.加密保存.Checked Then
+        For i = 1 To nodeSum
+            lineTmp = Split(ntx(i), LINEBREAK)
+            If fromCopy = True Then
+                NodeEdit_NewNode 富文本转义(lineTmp(2)), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)) + mousePos.X, Val(lineTmp(1)) + mousePos.Y, True
+            Else
+                NodeEdit_NewNode 富文本转义(lineTmp(2)), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)), Val(lineTmp(1))
+            End If
+        Next
+        For i = nodeSum + 1 To nodeSum + lineSum
+            lineTmp = Split(ntx(i), LINEBREAK)
+            If fromCopy = True Then
+                LineAdd_Save Val(lineTmp(0)) + startNodeId, Val(lineTmp(1)) + startNodeId, 富文本转义(lineTmp(2)), Val(lineTmp(3)), True
+            Else
+                If UBound(lineTmp) < 3 Then
+                    LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
+                Else
+                    LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), 富文本转义(lineTmp(2)), Val(lineTmp(3))
+                End If
+            End If
+        Next
+    Else
+        For i = 1 To nodeSum
+            lineTmp = Split(ntx(i), LINEBREAK)
+            If fromCopy = True Then
+                NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)) + mousePos.X, Val(lineTmp(1)) + mousePos.Y, True
+            Else
+                NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)), Val(lineTmp(1))
+            End If
+        Next
+        For i = nodeSum + 1 To nodeSum + lineSum
+            lineTmp = Split(ntx(i), LINEBREAK)
+            If fromCopy = True Then
+                LineAdd_Save Val(lineTmp(0)) + startNodeId, Val(lineTmp(1)) + startNodeId, lineTmp(2), Val(lineTmp(3)), True
+            Else
+                If UBound(lineTmp) < 3 Then
+                    LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
+                Else
+                    LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), lineTmp(2), Val(lineTmp(3))
+                End If
+            End If
+        Next
+    End If
+End Function
+Public Function NoteFileRead_201(ByRef ntx() As String, ByRef fromCopy As Boolean)
+    Dim i As Long, nodeSum As Long, lineSum As Long, startNodeId As Long: Dim lineTmp
+    lineTmp = Split(ntx(0), "^|`")
+    nodeSum = Val(lineTmp(1))
+    lineSum = Val(lineTmp(2))
+    If UBound(lineTmp) > 2 Then
+        magnification = Val(lineTmp(3)): zoomFactor = MToZF(magnification)
+        MainCoordinateSystemDefinition
+    End If
+    startNodeId = nSum
     For i = 1 To nodeSum
-        lineTmp = Split(ntx(i), LINEBREAK)
+        lineTmp = Split(ntx(i), "^|`")
         If fromCopy = True Then
-            NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)) + mousePos.X, Val(lineTmp(1)) + mousePos.Y, True
+            NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), "^||`", vbCrLf), nodeDefaultColor, nodeDefaultSize, Val(lineTmp(0)) + mousePos.X, Val(lineTmp(1)) + mousePos.Y, True
         Else
-            NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), NODELINEBREAK, vbCrLf), Val(lineTmp(4)), Val(lineTmp(5)), Val(lineTmp(0)), Val(lineTmp(1))
+            NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), "^||`", vbCrLf), nodeDefaultColor, nodeDefaultSize, Val(lineTmp(0)), Val(lineTmp(1))
         End If
     Next
     For i = nodeSum + 1 To nodeSum + lineSum
-        lineTmp = Split(ntx(i), LINEBREAK)
+        lineTmp = Split(ntx(i), "^|`")
         If fromCopy = True Then
-            LineAdd_Save Val(lineTmp(0)) + startNodeId, Val(lineTmp(1)) + startNodeId, lineTmp(2), Val(lineTmp(3)), True
+            LineAdd_Save Val(lineTmp(0)) + startNodeId, Val(lineTmp(1)) + startNodeId, "", lineDefaultSize, True
         Else
-            If UBound(lineTmp) < 3 Then
-                LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
-            Else
-                LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), lineTmp(2), Val(lineTmp(3))
-            End If
+            LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
         End If
     Next
-End Function
-Public Function NoteFileRead_201(ByRef ntx() As String, ByRef fromCopy As Boolean)
-Dim i, nodeSum, lineSum, startNodeId As Long: Dim lineTmp
-lineTmp = Split(ntx(0), "^|`")
-nodeSum = Val(lineTmp(1))
-lineSum = Val(lineTmp(2))
-If UBound(lineTmp) > 2 Then
-    magnification = Val(lineTmp(3)): zoomFactor = MToZF(magnification)
-    MainCoordinateSystemDefinition
-End If
-startNodeId = nSum
-For i = 1 To nodeSum
-    lineTmp = Split(ntx(i), "^|`")
-    If fromCopy = True Then
-        NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), "^||`", vbCrLf), nodeDefaultColor, nodeDefaultSize, Val(lineTmp(0)) + mousePos.X, Val(lineTmp(1)) + mousePos.Y, True
-    Else
-        NodeEdit_NewNode lineTmp(2), Replace(lineTmp(3), "^||`", vbCrLf), nodeDefaultColor, nodeDefaultSize, Val(lineTmp(0)), Val(lineTmp(1))
-    End If
-Next
-For i = nodeSum + 1 To nodeSum + lineSum
-    lineTmp = Split(ntx(i), "^|`")
-    If fromCopy = True Then
-        LineAdd_Save Val(lineTmp(0)) + startNodeId, Val(lineTmp(1)) + startNodeId, "", lineDefaultSize, True
-    Else
-        LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
-    End If
-Next
 End Function
 Public Function NoteFileRead_203(ByRef ntx() As String, ByRef fromCopy As Boolean)
     Dim i As Long, nodeSum As Long, lineSum As Long, startNodeId As Long: Dim lineTmp() As String
@@ -461,25 +529,54 @@ ByRef lineObj() As 连接, ByRef lineObjSum As Long)
     Dim ntx() As String: Dim i As Long, j As Long, nodeSum As Long, lineSum As Long, nodeIdList() As Long
     ReDim nodeIdList(nodeObjSum)
     ReDim ntx(nodeObjSum + lineObjSum + 1)
-    j = 1
-    For i = 0 To nodeObjSum - 1
-        With nodeObj(i)
-            If .b = True Then
-                ntx(j) = .X & LINEBREAK & .Y & LINEBREAK & .t & LINEBREAK & Replace(.content, vbCrLf, NODELINEBREAK) & LINEBREAK & .setColor & LINEBREAK & .setSize
-                nodeIdList(i) = j - 1
-                j = j + 1
-            End If
-        End With
-    Next
-    nodeSum = j - 1
-    For i = 0 To lineObjSum - 1
-        With lineObj(i)
-            If .b = True Then
-                ntx(j) = nodeIdList(.Source) & LINEBREAK & nodeIdList(.target) & LINEBREAK & .content & LINEBREAK & .size
-                j = j + 1
-            End If
-        End With
-    Next
+    j = 1 '转为富文本
+    If Note.加密保存.Checked Then
+        For i = 0 To nodeObjSum - 1
+            With nodeObj(i)
+                If .b = True Then
+                    ntx(j) = .X & LINEBREAK & .Y & LINEBREAK & 转为富文本(.t) & LINEBREAK & Replace(.content, vbCrLf, NODELINEBREAK) & LINEBREAK & .setColor & LINEBREAK & .setSize
+                    nodeIdList(i) = j - 1
+                    j = j + 1
+                End If
+            End With
+        Next
+        nodeSum = j - 1
+        For i = 0 To lineObjSum - 1
+            With lineObj(i)
+                If .b = True Then
+                    ntx(j) = nodeIdList(.Source) & LINEBREAK & nodeIdList(.target) & LINEBREAK & 转为富文本(.content) & LINEBREAK & .size
+                    j = j + 1
+                End If
+            End With
+        Next
+    Else
+        For i = 0 To nodeObjSum - 1
+            With nodeObj(i)
+                If .b = True Then
+                    If 纯文本保存 Then
+                        ntx(j) = .X & LINEBREAK & .Y & LINEBREAK & .t & LINEBREAK & Replace(富文本转义(.content), vbCrLf, "<br />")
+                    Else
+                        ntx(j) = .X & LINEBREAK & .Y & LINEBREAK & .t & LINEBREAK & Replace(.content, vbCrLf, NODELINEBREAK) & LINEBREAK & .setColor & LINEBREAK & .setSize
+                    End If
+                    nodeIdList(i) = j - 1
+                    j = j + 1
+                End If
+            End With
+        Next
+        nodeSum = j - 1
+        For i = 0 To lineObjSum - 1
+            With lineObj(i)
+                If .b = True Then
+                    If 纯文本保存 Then
+                        ntx(j) = nodeIdList(.Source) & LINEBREAK & nodeIdList(.target) & LINEBREAK & 富文本转义(.content)
+                    Else
+                        ntx(j) = nodeIdList(.Source) & LINEBREAK & nodeIdList(.target) & LINEBREAK & .content & LINEBREAK & .size
+                    End If
+                    j = j + 1
+                End If
+            End With
+        Next
+    End If
     lineSum = j - nodeSum - 1
     ntx(0) = VERSIONID & LINEBREAK & nodeSum & LINEBREAK & lineSum & LINEBREAK & magnification & LINEBREAK & Note.节点归整.Checked & LINEBREAK & NoteFileWrite_204_Coding_DIC & LINEBREAK & angleOfView.X & LINEBREAK & angleOfView.Y
     NoteFileWrite_204_Coding = ntx
@@ -509,6 +606,9 @@ Public Function NoteFileWrite_204(ByRef filePath As String)
     Note.Caption = NOTEFORMNAME & ntxPath
     ntx = NoteFileWrite_204_Coding(node, nSum, nodeLine, lSum)
     lastNtx = ntx
+    If Note.加密保存.Checked Then
+        NtxDecoding ntx
+    End If
     fN = FreeFile
     Open filePath For Output As #fN
         For i = 0 To UBound(ntx)
@@ -517,25 +617,25 @@ Public Function NoteFileWrite_204(ByRef filePath As String)
     Close #fN
 End Function
 Public Function NoteFileRead_301(ByRef ntx() As String)
-Dim lineStr, lineTmp
-Dim i, nodeSum As Long
-Dim v3 As 三维坐标
-Dim v2 As 二维坐标
-lineStr = Split(ntx(0), LINEBREAK)
-nodeSum = Val(lineStr(1))
-For i = 1 To nodeSum
-    lineTmp = Split(ntx(i), LINEBREAK)
-    v3 = StrToV3(lineTmp(0))
-    v2 = V3ToV2Pos(v3.X, v3.Y, v3.z)
-    NodeEdit_NewNode lineTmp(1), Replace(lineTmp(2), NODELINEBREAK, vbCrLf), nodeDefaultColor, nodeDefaultSize, v2.X, v2.Y
-Next
-For i = nodeSum + 1 To UBound(ntx)
-    lineTmp = Split(ntx(i), LINEBREAK)
-    LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
-Next
+    Dim lineStr, lineTmp
+    Dim i, nodeSum As Long
+    Dim v3 As 三维坐标
+    Dim v2 As 二维坐标
+    lineStr = Split(ntx(0), LINEBREAK)
+    nodeSum = Val(lineStr(1))
+    For i = 1 To nodeSum
+        lineTmp = Split(ntx(i), LINEBREAK)
+        v3 = StrToV3(lineTmp(0))
+        v2 = V3ToV2Pos(v3.X, v3.Y, v3.z)
+        NodeEdit_NewNode lineTmp(1), Replace(lineTmp(2), NODELINEBREAK, vbCrLf), nodeDefaultColor, nodeDefaultSize, v2.X, v2.Y
+    Next
+    For i = nodeSum + 1 To UBound(ntx)
+        lineTmp = Split(ntx(i), LINEBREAK)
+        LineAdd_Save Val(lineTmp(0)), Val(lineTmp(1)), "", lineDefaultSize
+    Next
 End Function
 
-Public Function NoteFileRead_VersionCheck(ByRef firstLine As String) As Long
+Public Function NoteFileRead_VersionCheck(firstLine As String) As Long
     If InStr(1, firstLine, "Note3D_1") Then
         NoteFileRead_VersionCheck = 301
     ElseIf InStr(1, firstLine, "Note2D_1") Then
@@ -547,7 +647,32 @@ Public Function NoteFileRead_VersionCheck(ByRef firstLine As String) As Long
     ElseIf InStr(1, firstLine, "Note2D_4") Then
         NoteFileRead_VersionCheck = 204
     Else
-        NoteFileRead_VersionCheck = -1
+        Note.加密保存.Checked = NtxDecryptionCheck(firstLine, NoteFileRead_VersionCheck)
+    End If
+End Function
+Public Function NtxDecryptionCheck(s As String, v As Long) As Boolean
+    Dim 解码 As String, 缓存 As String
+    v = -1
+    缓存 = InBox("文件无法识别，请尝试输入加密密匙解码：")
+    If promptBoxSelect = 0 Then
+        ntxKey = 缓存
+        解码 = 加密(s, ntxKey)
+        If InStr(1, 解码, "Note3D_1") Then
+            v = 301
+            NtxDecryptionCheck = True
+        ElseIf InStr(1, 解码, "Note2D_1") Then
+            v = 201
+            NtxDecryptionCheck = True
+        ElseIf InStr(1, 解码, "Note2D_2") Then
+            v = 202
+            NtxDecryptionCheck = True
+        ElseIf InStr(1, 解码, "Note2D_3") Then
+            v = 203
+            NtxDecryptionCheck = True
+        ElseIf InStr(1, 解码, "Note2D_4") Then
+            v = 204
+            NtxDecryptionCheck = True
+        End If
     End If
 End Function
 Public Function noteArrInitialization()
@@ -556,6 +681,9 @@ End Function
 Public Function newAddNote()
     MeExeIdSet
     Note.MainTime.Enabled = False
+    nodePreviousEditAim = -1
+    specifyingConnectionNodeId_s = -1
+    specifyingConnectionNodeId_t = -1
     noteArrInitialization
     nSum = 0: lSum = 0: bHLSum = 0: magnification = 0: zoomFactor = 1
     Note.GlobalView.Cls
@@ -564,4 +692,10 @@ Public Function newAddNote()
     Note.Caption = NOTEFORMNAME & ntxPath
     MainCoordinateSystemDefinition
     Note.MainTime.Enabled = True
+End Function
+Public Function 加密(s As String, k As String) As String
+    Dim i As Long
+    For i = 1 To Len(s)
+        加密 = 加密 & Chr(-20319 - Asc(Mid(s, i, 1)) + Asc(Mid(k, i Mod Len(k) + 1, 1)))
+    Next
 End Function

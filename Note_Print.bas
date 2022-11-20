@@ -5,17 +5,17 @@ Public Function NotePrint(pB As PictureBox) As 四元数
     获得最小值 NotePrint.xS, NotePrint.yS, NotePrint.xE, NotePrint.yE
     dX = 3000 - NotePrint.xS
     dY = 3000 - NotePrint.yS
-    pB.Width = NotePrint.xE + dX + 3000
-    pB.Height = NotePrint.yE + dY + 3000
-    pB.Scale (0, pB.Height)-(pB.Width, 0)
+    pB.width = NotePrint.xE + dX + 3000
+    pB.height = NotePrint.yE + dY + 3000
+    pB.Scale (0, 0)-(pB.width, pB.height)
     pB.Font = Note.Font
     pB.Font.size = Note.Font.size
     pB.ForeColor = Note.ForeColor
     For i = 0 To lSum
         With nodeLine(i)
             If .b Then
-                pX = node(.source).X + dX
-                pY = node(.source).Y + dY
+                pX = node(.Source).X + dX
+                pY = node(.Source).Y + dY
                 pX2 = node(.target).X + dX
                 pY2 = node(.target).Y + dY
 '                mX = (pX + pX2) / 2
@@ -23,7 +23,7 @@ Public Function NotePrint(pB As PictureBox) As 四元数
                 mX = (pX2 - pX) / 3 * 2 + pX
                 mY = (pY2 - pY) / 3 * 2 + pY
                 pB.DrawWidth = .size * 2
-                pB.Line (pX, pY)-(mX, mY), node(.source).setColor
+                pB.Line (pX, pY)-(mX, mY), node(.Source).setColor
                 pB.DrawWidth = .size
                 pB.Line (mX, mY)-(pX2, pY2), node(.target).setColor
                 pB.CurrentX = mX

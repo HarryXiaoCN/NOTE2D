@@ -3,7 +3,7 @@ Option Explicit
 Public Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
 Public Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
 Public Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hWnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
-Public Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Public Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Public Declare Function CallWindowProc Lib "user32" Alias "CallWindowProcA" (ByVal lpPrevWndFunc As Long, ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
 
@@ -59,9 +59,9 @@ SetWindowLong formObj.hWnd, GWL_EXSTYLE, rtn Or WS_EX_LAYERED
 SetLayeredWindowAttributes formObj.hWnd, 0, trNum, LWA_ALPHA
 End Function
 Public Function FormStick(ByRef formObj As Form, ByRef Stick As Boolean)
-If Stick = True Then
-    SetWindowPos formObj.hWnd, -1, 0, 0, 0, 0, 2 Or 1
-Else
-    SetWindowPos formObj.hWnd, -2, 0, 0, 0, 0, 2 Or 1
-End If
+    If Stick = True Then
+        SetWindowPos formObj.hWnd, -1, 0, 0, 0, 0, 2 Or 1
+    Else
+        SetWindowPos formObj.hWnd, -2, 0, 0, 0, 0, 2 Or 1
+    End If
 End Function

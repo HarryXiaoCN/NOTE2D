@@ -15,6 +15,7 @@ Public Function Updata()
         Updata_RectangleLine
         Updata_ColorUpdata
         Updata_GetNodeTargetAim
+        Updata_GetLineTargetAim
         Updata_NodeMove
         Updata_SelectMove
 '        Updata_AllNodeMove
@@ -98,7 +99,9 @@ Public Function Updata_ColorUpdata()
 End Function
 Public Function Updata_pilotLightColor()
     Note.DrawWidth = 1
-    Note.Line (Note.pilotLightX0 * zoomFactor - angleOfView.X, Note.pilotLightY0 * zoomFactor - angleOfView.Y)-(Note.pilotLightX1 * zoomFactor - angleOfView.X, Note.pilotLightY1 * zoomFactor - angleOfView.Y), Note.pilotLightColor, BF
+    If Note.文件更改检测.Checked Then
+        Note.Line (Note.pilotLightX0 * zoomFactor - angleOfView.X, Note.pilotLightY0 * zoomFactor - angleOfView.Y)-(Note.pilotLightX1 * zoomFactor - angleOfView.X, Note.pilotLightY1 * zoomFactor - angleOfView.Y), Note.pilotLightColor, BF
+    End If
     If nodeCreativeMode Then
         Note.CurrentX = -angleOfView.X
         Note.CurrentY = -angleOfView.Y
@@ -124,16 +127,21 @@ Public Function Updata_GetNodeTargetAim()
         Updata_GetNodeTargetAim_Select nodeTargetAim
     End If
 End Function
+Public Function Updata_GetLineTargetAim()
+    lineTargetAim = LineCheck(mousePos.X, mousePos.Y)
+End Function
 Public Function Updata_GetNodeTargetAim_TagVis()
-If Note.标签化.Checked = True Then
-    If nodeTargetAim <> -1 Then
-        Note.NodePrintBox.left = node(nodeTargetAim).X - Note.NodePrintBox.width / 2
-        Note.NodePrintBox.Top = node(nodeTargetAim).Y - Note.NodePrintBox.height - node(nodeTargetAim).setSize * 0.8
-        Note.NodePrintBox.Visible = True
-    Else
-        Note.NodePrintBox.Visible = False
+    If Note.关闭输出界面.Checked = False Then
+        If Note.标签化.Checked = True Then
+            If nodeTargetAim <> -1 Then
+                Note.NodePrintBox.left = node(nodeTargetAim).X - Note.NodePrintBox.width / 2
+                Note.NodePrintBox.Top = node(nodeTargetAim).Y - Note.NodePrintBox.height - node(nodeTargetAim).setSize * 0.8
+                Note.NodePrintBox.Visible = True
+            Else
+                Note.NodePrintBox.Visible = False
+            End If
+        End If
     End If
-End If
 End Function
 Public Function Updata_GetNodeTargetAim_Deselect()
 Dim i As Long
@@ -309,60 +317,123 @@ Public Function Updata_Node()
                 End If
                 Updata_Node_SetColor i
                 If Note.显示全部节点名.Checked = True Or nodeTargetAim = i Then
-                    Updata_Node_FormPrint .X, .Y, .t, .content
+                    Updata_Node_FormPrint .X, .Y, .t, .text, i
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.显示顺向节点名.Checked = True And .forward = True Then
-                    Updata_Node_FormPrint .X, .Y, .t, .content
+                    Updata_Node_FormPrint .X, .Y, .t, .text, i
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.显示逆向节点名.Checked = True And .backward = True Then
-                    Updata_Node_FormPrint .X, .Y, .t, .content
+                    Updata_Node_FormPrint .X, .Y, .t, .text, i
                     If .select = True Then
                         Updata_Node_FontBold .X, .Y, .t
                     End If
                 End If
                 If Note.始终显示选点名.Checked = True And .select = True Then
-                    Updata_Node_FormPrint .X, .Y, .t, .content
+                    Updata_Node_FormPrint .X, .Y, .t, .text, i
                     Updata_Node_FontBold .X, .Y, .t
                 End If
                 If Note.显示节点遍历ID.Checked = True Then
-                    Updata_Node_FormPrint .X - 220, .Y + 200, str(i)
+                    Updata_Node_FormPrint .X - 220, .Y + 200, str(i), , i
                 End If
                 If nodeTargetAim = i And (notePrintNodeId <> i Or nodePrintBeLock = False Or needUpdataNodePrint = True) Then
                     If nodePrintBeLock = False And Note.标签化.Checked = False Then NodePrint.Show
                     notePrintNodeId = i
                     NodePrint.Caption = .t
-                    childNodeVisLock = 子节点检查(富文本转义(.content))
-                    If Note.标签化.Checked = True Then
-                        Note.NodePrintBox.TextRTF = .content
-                    Else
-                        Updata_Node_ContentPrint .content
+                    childNodeVisLock = 子节点检查(.text)
+                    If Note.关闭输出界面.Checked = False Then
+                        If Note.标签化.Checked = True Then
+                            Note.NodePrintBox.TextRTF = .content
+                        Else
+                            Updata_Node_ContentPrint .content
+                        End If
+                    End If
+                    If Note.连接节点清单.Checked Then
+                        Updata_Node_LineNodeList i
+                        If LineNodeListForm.Visible = False Then LineNodeListForm.Visible = True
                     End If
                     needUpdataNodePrint = False
                 End If
             End With
         End If
     Next
+    If nodeTargetAim >= 0 And Note.附近节点高亮.Checked Then
+        Updata_Node_NearbyLigthing nodeTargetAim
+    End If
     Updata_Node_addNew
 End Function
-Public Function Updata_Node_FormPrint(X As Single, Y As Single, t As String, Optional c As String)
+Public Sub Updata_Node_NearbyLigthing(nid As Long)
+    Dim i As Long
+    Note.FillStyle = 1
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b Then
+                If .Source = nid Then
+                    Note.Circle (node(.target).X, node(.target).Y), node(.target).setSize * 1.2, node(nid).setColor 'NodeNearbyLigthingColor
+                    Note.Circle (node(.target).X, node(.target).Y), node(.target).setSize * 1.5, node(nid).setColor 'NodeNearbyLigthingColor
+                End If
+            End If
+        End With
+    Next
+    Note.FillStyle = 0
+End Sub
+Public Function Updata_Node_LineNodeList(nid As Long)
+    Dim i As Long
+'    LineNodeListForm.Top = node(nid).X
+'    LineNodeListForm.left = node(nid).Y
+    LineNodeListForm.连接节点列表(0).Clear
+    LineNodeListForm.连接节点列表(1).Clear
+    LineNodeListForm.Caption = "中心节点名：" & node(nid).t & " 节点ID：" & nid
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b Then
+                If .Source = nid Then
+                    LineNodeListForm.连接节点列表(0).AddItem .target & ":""" & node(.target).t & """"
+                End If
+                If .target = nid Then
+                    LineNodeListForm.连接节点列表(1).AddItem .Source & ":""" & node(.Source).t & """"
+                End If
+            End If
+        End With
+    Next
+End Function
+Public Function Updata_Node_FormPrint(X As Single, Y As Single, t As String, Optional c As String, Optional nid As Long)
     'form replace 2
     Note.CurrentX = X
     Note.CurrentY = Y
     If Note.精简内容.Checked Then
-        contentTemp = Replace(富文本转义(c), vbCrLf, "\n")
+        contentTemp = Replace(c, vbCrLf, "\n")
         If Len(contentTemp) > 10 Then
-            Note.Print t & ":" & Mid(contentTemp, 1, 10) & "...."
+            If visNodeNameLength > 0 And nid <> nodeTargetAim Then
+                Note.Print Updata_Node_FormPrint_NodeNameLengthVis(t) & ":" & Mid(contentTemp, 1, 10) & "...."
+            Else
+                Note.Print t & ":" & Mid(contentTemp, 1, 10) & "...."
+            End If
         Else
-            Note.Print t & ":" & contentTemp
+            If visNodeNameLength > 0 Then
+                Note.Print Updata_Node_FormPrint_NodeNameLengthVis(t) & ":" & contentTemp
+            Else
+                Note.Print t & ":" & contentTemp
+            End If
         End If
     Else
-        Note.Print t
+        If visNodeNameLength > 0 And nid <> nodeTargetAim Then
+            Note.Print Updata_Node_FormPrint_NodeNameLengthVis(t)
+        Else
+            Note.Print t
+        End If
+    End If
+End Function
+Public Function Updata_Node_FormPrint_NodeNameLengthVis(t) As String
+    If Len(t) <= visNodeNameLength Then
+        Updata_Node_FormPrint_NodeNameLengthVis = Mid(t, 1, visNodeNameLength)
+    Else
+        Updata_Node_FormPrint_NodeNameLengthVis = Mid(t, 1, visNodeNameLength) & "..."
     End If
 End Function
 Public Function Updata_Node_FontBold(ByRef X As Single, ByRef Y As Single, ByRef t As String)
@@ -389,7 +460,17 @@ End Function
 Public Function Updata_Node_SetColor(ByRef nid As Long)
     'form replace 4
     With node(nid)
-        If nodeTargetAim = nid Then .color = 1: .size = .setSize * 1.2 Else .color = 0: .size = .setSize
+        If nodeTargetAim = nid Then
+            .color = 1: .size = .setSize * 1.2
+            If .gSource Then
+                Updata_Node_SetColor_DrawLine .X, .Y, 255, .setSize
+            End If
+            If .gTarget Then
+                Updata_Node_SetColor_DrawLine .X, .Y, 16711680, .setSize
+            End If
+        Else
+            .color = 0: .size = .setSize
+        End If
         If .select = True Then .color = -2
         If nodeMoveLock = True And nodeClickAim = nid Then .color = 2: .size = .setSize * 1.2
         If Note.矩点.Checked = False Then
@@ -400,6 +481,13 @@ Public Function Updata_Node_SetColor(ByRef nid As Long)
             Note.Line (.X - .size, .Y - .size)-(.X + .size, .Y + .size), Updata_Node_GetColor(.color, .setColor), BF
         End If
     End With
+End Function
+Public Function Updata_Node_SetColor_DrawLine(X As Single, Y As Single, c As Long, ByVal size As Single)
+    size = size * 20
+    Note.Line (X - size, Y - size)-(X + size, Y - size), c
+    Note.Line (X + size, Y - size)-(X + size, Y + size), c
+    Note.Line (X + size, Y + size)-(X - size, Y + size), c
+    Note.Line (X - size, Y + size)-(X - size, Y - size), c
 End Function
 Public Function Updata_Node_GetColor(ByRef color As Long, Optional oneselfColor As Long)
 Select Case color
@@ -438,12 +526,12 @@ Public Function Updata_NodeLine()
                 Or (Note.始终显示选接.Checked = True And .select = True) Then
                     midX = (node(.target).X - node(.Source).X) / 3 * 2 + node(.Source).X
                     midY = (node(.target).Y - node(.Source).Y) / 3 * 2 + node(.Source).Y
-                    If .select = False Then
+                    If .select = False And lineTargetAim <> i Then
                         Note.DrawWidth = .size
                         If Note.彩虹线.Checked = False Then
                             If Note.流光溢彩.Checked = False Then
-                                Note.Line (node(.Source).X, node(.Source).Y)-(midX, midY), RGB(255, 0, 0)
-                                Note.Line (midX, midY)-(node(.target).X, node(.target).Y), RGB(0, 0, 255)
+                                Note.Line (node(.Source).X, node(.Source).Y)-(midX, midY), 255
+                                Note.Line (midX, midY)-(node(.target).X, node(.target).Y), 16711680
                             Else
                                 DynamicRainbow_Line Note, node(.Source).X, node(.Source).Y, node(.target).X, node(.target).Y
                                 c = c + 1
@@ -464,6 +552,11 @@ Public Function Updata_NodeLine()
                         Note.CurrentY = midY
                         Note.Print .content
                     End If
+                    If lineTargetAim = i Then
+                        Note.CurrentX = mousePos.X
+                        Note.CurrentY = mousePos.Y - 300
+                        Note.Print node(.Source).t & "→" & .content & "→" & node(.target).t
+                    End If
                 End If
             End If
         End With
@@ -477,8 +570,8 @@ If lineAddLock = True And nodeClickAim <> -1 Then
         If Note.彩虹线.Checked = False Then
             midX = (mousePos.X - node(nodeClickAim).X) / 3 * 2 + node(nodeClickAim).X
             midY = (mousePos.Y - node(nodeClickAim).Y) / 3 * 2 + node(nodeClickAim).Y
-            Note.Line (node(nodeClickAim).X, node(nodeClickAim).Y)-(midX, midY), RGB(255, 0, 0)
-            Note.Line (midX, midY)-(mousePos.X, mousePos.Y), RGB(0, 0, 255)
+            Note.Line (node(nodeClickAim).X, node(nodeClickAim).Y)-(midX, midY), 255
+            Note.Line (midX, midY)-(mousePos.X, mousePos.Y), 16711680
         Else
             Rainbow_Line Note, node(nodeClickAim).X, node(nodeClickAim).Y, mousePos.X, mousePos.Y
         End If

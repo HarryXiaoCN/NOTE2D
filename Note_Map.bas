@@ -15,7 +15,7 @@ Public Function MapUpdata_DetermineTheBoundary()
 End Function
 Public Function 绘制窗口世界视角()
     Note.GlobalView.FillColor = RGB(255, 127, 80)
-    Note.GlobalView.Line (-angleOfView.x, -angleOfView.y)-(Note.width * zoomFactor - angleOfView.x, Note.height * zoomFactor - angleOfView.y), RGB(255, 69, 0), B
+    Note.GlobalView.Line (-angleOfView.X, -angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, Note.height * zoomFactor - angleOfView.Y), RGB(255, 69, 0), B
     Note.GlobalView.FillColor = 10156544
 End Function
 Public Function 笔记对象绘制()
@@ -23,12 +23,12 @@ Public Function 笔记对象绘制()
     For i = 0 To lSum
         With nodeLine(i)
             If .b = True Then
-                If .select Then
+                If .select = True Or lineTargetAim = i Then
                     颜色 = 255
                 Else
                     颜色 = 10526880
                 End If
-                Note.GlobalView.Line (node(.Source).x, node(.Source).y)-(node(.target).x, node(.target).y), 颜色
+                Note.GlobalView.Line (node(.Source).X, node(.Source).Y)-(node(.target).X, node(.target).Y), 颜色
             End If
         End With
     Next
@@ -42,9 +42,9 @@ Public Function 笔记对象绘制()
                 End If
                 Note.GlobalView.FillColor = 颜色
                 If Note.矩点.Checked = False Then
-                    Note.GlobalView.Circle (.x, .y), 100, 颜色
+                    Note.GlobalView.Circle (.X, .Y), 100, 颜色
                 Else
-                    Note.GlobalView.Line (.x - 100, .y - 100)-(.x + 100, .y + 100), 颜色, BF
+                    Note.GlobalView.Line (.X - 100, .Y - 100)-(.X + 100, .Y + 100), 颜色, BF
                 End If
             End If
         End With
@@ -57,18 +57,18 @@ Public Function 确定边界() As 边界
         With node(i)
             If .b = True Then
                 If i = 0 Then
-                    maxX = .x: minX = .x
-                    maxY = .y: minY = .y
+                    maxX = .X: minX = .X
+                    maxY = .Y: minY = .Y
                 Else
-                    If .x > maxX Then
-                        maxX = .x
-                    ElseIf .x < minX Then
-                        minX = .x
+                    If .X > maxX Then
+                        maxX = .X
+                    ElseIf .X < minX Then
+                        minX = .X
                     End If
-                    If .y > maxY Then
-                        maxY = .y
-                    ElseIf .y < minY Then
-                        minY = .y
+                    If .Y > maxY Then
+                        maxY = .Y
+                    ElseIf .Y < minY Then
+                        minY = .Y
                     End If
                 End If
             End If

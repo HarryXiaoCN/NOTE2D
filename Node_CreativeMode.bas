@@ -15,7 +15,7 @@ Public Sub 顺序放置节点(p As 二维坐标)
         With NodeCreativeList(i)
             If .b Then
                 tmpID = NodeEdit_NewNode(.t, .content, .setColor, .setSize, p.X, p.Y)
-                LineAdd nodeCreativeSourceId, tmpID, "", lineDefaultSize
+                LineAdd nodeCreativeSourceId, tmpID, "", lineDefaultSize, , , True
                 .b = False
                 nodeCreativeListStart = i + 1
                 Exit For
@@ -34,7 +34,7 @@ Public Sub 剩余节点阵列(起点 As 二维坐标)
         With NodeCreativeList(i)
             If .b Then
                 tmpID = NodeEdit_NewNode(.t, .content, .setColor, .setSize, 起点.X + (i - nodeCreativeListStart - 1) * nodeAttributedToIntegers, 起点.Y)
-                LineAdd nodeCreativeSourceId, tmpID, "", lineDefaultSize
+                LineAdd nodeCreativeSourceId, tmpID, "", lineDefaultSize, , , True
                 .b = False
             End If
         End With

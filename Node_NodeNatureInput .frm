@@ -1,6 +1,6 @@
 VERSION 5.00
 Object = "{3B7C8863-D78F-101B-B9B5-04021C009402}#1.2#0"; "RICHTX32.OCX"
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
+Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "comdlg32.ocx"
 Begin VB.Form NodeInput 
    Appearance      =   0  'Flat
    AutoRedraw      =   -1  'True
@@ -23,6 +23,7 @@ Begin VB.Form NodeInput
    EndProperty
    ForeColor       =   &H8000000D&
    Icon            =   "Node_NodeNatureInput .frx":0000
+   KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    ScaleHeight     =   8865
    ScaleWidth      =   6240
@@ -50,7 +51,6 @@ Begin VB.Form NodeInput
       _ExtentX        =   10583
       _ExtentY        =   13705
       _Version        =   393217
-      Enabled         =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
       AutoVerbMenu    =   -1  'True
@@ -389,6 +389,15 @@ Begin VB.Form NodeInput
          Checked         =   -1  'True
          Shortcut        =   ^K
       End
+      Begin VB.Menu 自连节点 
+         Caption         =   "自连节点"
+         Begin VB.Menu 自动连接上一编辑节点 
+            Caption         =   "顺连上节点"
+         End
+         Begin VB.Menu 自动连接上一编辑节点2 
+            Caption         =   "逆连上节点"
+         End
+      End
       Begin VB.Menu jdcut2 
          Caption         =   "-"
       End
@@ -517,7 +526,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private inputBoxContent As String, synchronizationState As String
-Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Label1_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
     Label1.FontBold = True
 End Sub
 
@@ -526,6 +535,12 @@ Private Sub Form_Load()
     Me.width = nodeInputFormWidth
     Me.Top = nodeInputFormTop
     Me.left = nodeInputFormLeft
+    保持内容.Checked = keepNodeContentLock
+    自动连接上一编辑节点.Checked = orderConnectPreviousNodeLock
+    自动连接上一编辑节点2.Checked = reverseConnectPreviousNodeLock
+    If 自动连接上一编辑节点.Checked = True And 自动连接上一编辑节点2.Checked = True Then
+        自动连接上一编辑节点2.Checked = False
+    End If
     nodeEditFormLock = True
     节点选中色 = 17
     Me.BackColor = NodeInputBackColor
@@ -560,9 +575,9 @@ Private Sub NodeInputBox_Change()
     inputBoxContent = NodeInputBox.TextRTF
 End Sub
 
-Private Sub NodeInputBox_GotFocus()
-    If NodeInputBox.Text = "请输入节点内容..." Then NodeInputBox.Text = ""
-End Sub
+'Private Sub NodeInputBox_GotFocus()
+'    If NodeInputBox.text = "请输入节点内容..." Then NodeInputBox.text = ""
+'End Sub
 
 Private Sub NodeInputBox_KeyDown(KeyCode As Integer, Shift As Integer)
 'MsgBox KeyCode
@@ -586,20 +601,26 @@ End Sub
 'End Sub
 
 Private Sub NodeTitle_Change()
-    Me.Caption = "节点名：" & NodeTitle.Text & synchronizationState
+    Me.Caption = "节点名：" & NodeTitle.text & synchronizationState
 End Sub
 
-Private Sub NodeTitle_GotFocus()
-    If NodeTitle.Text = "请输入节点标题..." Then NodeTitle.Text = ""
-End Sub
+'Private Sub NodeTitle_GotFocus()
+'    If NodeTitle.text = "请输入节点标题..." Then NodeTitle.text = ""
+'End Sub
 
 Private Sub NodeTitle_KeyDown(KeyCode As Integer, Shift As Integer)
-    NodeInputBox_KeyDown KeyCode, Shift
-    If KeyCode = vbKeyTab Then
-        NodeInputBox.SetFocus
-        NodeInputBox.SelStart = 0
-        NodeInputBox.SelLength = Len(NodeInputBox.Text)
-    End If
+'    NodeInputBox_KeyDown KeyCode, Shift
+    Select Case KeyCode
+        Case vbKeyTab
+            NodeInputBox.SetFocus
+            NodeInputBox.selStart = 0
+            NodeInputBox.SelLength = Len(NodeInputBox.text)
+        Case vbKeyA
+            If Shift = 2 Then
+                NodeTitle.selStart = 0
+                NodeTitle.SelLength = Len(NodeTitle.text)
+            End If
+    End Select
 End Sub
 
 Private Sub NodeTitle_KeyPress(KeyAscii As Integer)
@@ -615,36 +636,39 @@ End Sub
 Private Sub TxtCheck_Timer()
 On Error GoTo Er
     If nodeEditLock = False Then
-        PilotLight.BackColor = RGB(255, 0, 0)
-    ElseIf node(nodeEditAim).t = NodeTitle.Text And _
+        PilotLight.BackColor = 255
+    ElseIf node(nodeEditAim).t = NodeTitle.text And _
             node(nodeEditAim).content = inputBoxContent And _
             node(nodeEditAim).setColor = 色选框.BorderColor And _
             node(nodeEditAim).b = True Then
-        PilotLight.BackColor = RGB(0, 255, 0)
+        PilotLight.BackColor = 65280
     ElseIf node(nodeEditAim).b = True Then
-        PilotLight.BackColor = RGB(255, 165, 0)
+        PilotLight.BackColor = 42495
     Else
-        PilotLight.BackColor = RGB(255, 0, 0)
+        PilotLight.BackColor = 255
     End If
 Er:
 End Sub
 
 Private Sub 保持内容_Click()
     保持内容.Checked = Not 保持内容.Checked
+    keepNodeContentLock = 保持内容.Checked
 End Sub
 
 Private Sub 保存_Click()
-    Dim i As Long, t As String, c As String, size As Single, color As Long
+    Dim i As Long, t As String, c As String, size As Single, color As Long, selStart As Long
     BehaviorIdSet
-    色选框.BorderColor = NCF_NodeColorControl(NodeInputBox.Text, 色选框.BorderColor)
+    selStart = NodeInputBox.selStart
+    manuallyEstablishedLock = True
+    色选框.BorderColor = NCF_NodeColorControl(NodeInputBox.text, 色选框.BorderColor)
     If nodeEditLock = True Then
-        NodeEdit_ReviseNode nodeEditAim, NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, node(nodeEditAim).setSize
+        NodeEdit_ReviseNode nodeEditAim, NodeTitle.text, NodeInputBox.TextRTF, 色选框.BorderColor, node(nodeEditAim).setSize
     Else
-        If NodeEdit_ContentFilter(NodeInputBox.Text) Then
-            NodeInputBox.Text = ""
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
+        If NodeEdit_ContentFilter(NodeInputBox.text) Then
+            NodeInputBox.text = ""
+            NodeEdit_NewNode NodeTitle.text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
         Else
-            NodeEdit_NewNode NodeTitle.Text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.x, nodeEditPos.y
+            NodeEdit_NewNode NodeTitle.text, NodeInputBox.TextRTF, 色选框.BorderColor, nodeDefaultSize, nodeEditPos.X, nodeEditPos.Y
         End If
     End If
     If 节点同步内容(0).Checked = True Or 节点同步内容(1).Checked = True Or 节点同步内容(2).Checked = True Or 节点同步内容(3).Checked = True Then
@@ -652,7 +676,7 @@ Private Sub 保存_Click()
             With node(i)
                 If .b = True And .select = True Then
                     If 节点同步内容(0).Checked Then
-                        t = NodeTitle.Text
+                        t = NodeTitle.text
                     Else
                         t = .t
                     End If
@@ -678,17 +702,69 @@ Private Sub 保存_Click()
     End If
     fictitiousRootNodeId = nodeEditAim
     needUpdataNodePrint = True
-    fictitiousIndexName = NodeTitle.Text
+    fictitiousIndexName = NodeTitle.text
     FictitiousCheck
-    Note.SetFocus
+    If Note.自建连接.Checked Then
+        自建链接 NodeInputBox.text, nodeEditAim
+    End If
+    If LineAdd_RepeatedChecking(nodePreviousEditAim, nodeEditAim) = -1 And nodePreviousEditAim <> -1 And nodePreviousEditAim <> nodeEditAim Then
+        If node(nodePreviousEditAim).b Then
+            If 自动连接上一编辑节点.Checked Then
+                LineAdd nodePreviousEditAim, nodeEditAim, "", lineDefaultSize, , , True
+            ElseIf 自动连接上一编辑节点2.Checked Then
+                LineAdd nodeEditAim, nodePreviousEditAim, "", lineDefaultSize, , , True
+            End If
+        End If
+    End If
+    If specifyingConnectionNodeId_s <> -1 Then
+        If node(specifyingConnectionNodeId_s).b = True And LineAdd_RepeatedChecking(specifyingConnectionNodeId_s, nodeEditAim) = -1 Then
+            LineAdd specifyingConnectionNodeId_s, nodeEditAim, "", lineDefaultSize, , , True
+        End If
+    End If
+    If specifyingConnectionNodeId_t <> -1 Then
+        If node(specifyingConnectionNodeId_t).b = True And LineAdd_RepeatedChecking(specifyingConnectionNodeId_t, nodeEditAim) = -1 Then
+            LineAdd nodeEditAim, specifyingConnectionNodeId_t, "", lineDefaultSize, , , True
+        End If
+    End If
+    NodeEdit_Save_RangeJoin nodeEditAim
+    NodeInputBox.selStart = selStart
+    If Note.保存后失去焦点.Checked Then
+        Note.SetFocus
+    End If
+End Sub
+
+Private Sub 自建链接(s As String, nid As Long)
+    Dim i As Long, sT() As String, likeStr As String, Source As Boolean, j As Long
+    sT = Split(s, vbCrLf)
+    For i = 0 To UBound(sT)
+        If sT(i) <> "" Then
+            If NCF_NodeLikeControl(sT(i), likeStr, Source) Then
+                For j = 0 To nSum
+                    With node(j)
+                        If .b = True And j <> nid Then
+                            If .t Like likeStr Then
+                                If LineAdd_RepeatedChecking(nid, j) = -1 Then
+                                    If Source Then
+                                        LineAdd j, nid, likeStr, lineDefaultSize, , True, True
+                                    Else
+                                        LineAdd nid, j, likeStr, lineDefaultSize, , True, True
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End With
+                Next
+            End If
+        End If
+    Next
 End Sub
 
 Private Sub 橙色_Click()
-NodeInputBox.SelColor = RGB(255, 165, 0)
+    NodeInputBox.SelColor = 42495
 End Sub
 
 Private Sub 红色_Click()
-NodeInputBox.SelColor = RGB(255, 0, 0)
+    NodeInputBox.SelColor = 255
 End Sub
 
 Private Sub 换行缩进_Click()
@@ -700,11 +776,11 @@ Private Sub 黄色_Click()
 End Sub
 
 Private Sub 加粗_Click()
-If NodeInputBox.SelBold = True Then NodeInputBox.SelBold = False Else NodeInputBox.SelBold = True
+    If NodeInputBox.SelBold = True Then NodeInputBox.SelBold = False Else NodeInputBox.SelBold = True
 End Sub
 
 Private Sub 减小字号_Click()
-NodeInputBox.SelFontSize = NodeInputBox.SelFontSize - 2
+    NodeInputBox.SelFontSize = NodeInputBox.SelFontSize - 2
 End Sub
 
 Private Sub 节点同步内容_Click(Index As Integer)
@@ -717,10 +793,10 @@ Private Sub 节点同步内容_Click(Index As Integer)
     Next
     If synchronizationState <> " - " Then
         synchronizationState = Mid(synchronizationState, 1, Len(synchronizationState) - 1) & "将同步修改"
-        Me.Caption = "节点名：" & NodeTitle.Text & synchronizationState
+        Me.Caption = "节点名：" & NodeTitle.text & synchronizationState
     Else
         synchronizationState = ""
-        Me.Caption = "节点名：" & NodeTitle.Text
+        Me.Caption = "节点名：" & NodeTitle.text
     End If
 End Sub
 
@@ -737,78 +813,94 @@ Public Function 色号匹配(c As Long) As Integer
     Next
 End Function
 Private Sub 居中对齐_Click()
-NodeInputBox.SelAlignment = rtfCenter
+    NodeInputBox.SelAlignment = rtfCenter
 End Sub
 
 Private Sub 蓝色_Click()
-NodeInputBox.SelColor = RGB(0, 0, 255)
+    NodeInputBox.SelColor = 16711680
 End Sub
 
 Private Sub 绿色_Click()
-NodeInputBox.SelColor = RGB(0, 128, 0)
+    NodeInputBox.SelColor = RGB(0, 128, 0)
 End Sub
 
 Private Sub 青色_Click()
-NodeInputBox.SelColor = RGB(0, 255, 255)
+    NodeInputBox.SelColor = RGB(0, 255, 255)
 End Sub
 
 Private Sub 倾斜_Click()
-If NodeInputBox.SelItalic = True Then NodeInputBox.SelItalic = False Else NodeInputBox.SelItalic = True
+    If NodeInputBox.SelItalic = True Then NodeInputBox.SelItalic = False Else NodeInputBox.SelItalic = True
 End Sub
 
 Private Sub 删除线_Click()
-If NodeInputBox.SelStrikeThru = True Then NodeInputBox.SelStrikeThru = False Else NodeInputBox.SelStrikeThru = True
-
+    If NodeInputBox.SelStrikeThru = True Then NodeInputBox.SelStrikeThru = False Else NodeInputBox.SelStrikeThru = True
 End Sub
 
 Private Sub 退出_Click()
-Unload Me
+    Unload Me
 End Sub
 
 Private Sub 下划线_Click()
-If NodeInputBox.SelUnderline = True Then NodeInputBox.SelUnderline = False Else NodeInputBox.SelUnderline = True
-
+    If NodeInputBox.SelUnderline = True Then NodeInputBox.SelUnderline = False Else NodeInputBox.SelUnderline = True
 End Sub
 
 Private Sub 右对齐_Click()
-NodeInputBox.SelAlignment = rtfRight
+    NodeInputBox.SelAlignment = rtfRight
 End Sub
 
 Private Sub 增大字号_Click()
-NodeInputBox.SelFontSize = NodeInputBox.SelFontSize + 2
+    NodeInputBox.SelFontSize = NodeInputBox.SelFontSize + 2
 End Sub
 
 Private Sub 紫色_Click()
-NodeInputBox.SelColor = RGB(128, 0, 128)
+    NodeInputBox.SelColor = RGB(128, 0, 128)
 End Sub
 
 Private Sub 自定义_Click()
-With CommonDialog1
-    .Flags = 1
-    .ShowColor
-    NodeInputBox.SelColor = .color
-End With
+    With CommonDialog1
+        .Flags = 1
+        .ShowColor
+        NodeInputBox.SelColor = .color
+    End With
+End Sub
+
+Private Sub 自动连接上一编辑节点_Click()
+    自动连接上一编辑节点.Checked = Not 自动连接上一编辑节点.Checked
+    If 自动连接上一编辑节点.Checked Then
+        自动连接上一编辑节点2.Checked = False
+        reverseConnectPreviousNodeLock = False
+    End If
+    orderConnectPreviousNodeLock = 自动连接上一编辑节点.Checked
+End Sub
+
+Private Sub 自动连接上一编辑节点2_Click()
+    自动连接上一编辑节点2.Checked = Not 自动连接上一编辑节点2.Checked
+    If 自动连接上一编辑节点2.Checked Then
+        自动连接上一编辑节点.Checked = False
+        orderConnectPreviousNodeLock = False
+    End If
+    reverseConnectPreviousNodeLock = 自动连接上一编辑节点2.Checked
 End Sub
 
 Private Sub 字体_Click()
-With CommonDialog1
-    .Flags = 1
-    .FontName = NodeInputBox.SelFontName
-    .FontBold = NodeInputBox.SelBold
-    .FontSize = NodeInputBox.SelFontSize
-    .FontItalic = NodeInputBox.SelItalic
-    .FontUnderline = NodeInputBox.SelUnderline
-    .FontStrikethru = NodeInputBox.SelStrikeThru
-    .ShowFont
-    NodeInputBox.SelFontName = .FontName
-    NodeInputBox.SelBold = .FontBold
-    NodeInputBox.SelFontSize = .FontSize
-    NodeInputBox.SelItalic = .FontItalic
-    NodeInputBox.SelUnderline = .FontUnderline
-    NodeInputBox.SelStrikeThru = .FontStrikethru
-End With
+    With CommonDialog1
+        .Flags = 1
+        .FontName = NodeInputBox.SelFontName
+        .FontBold = NodeInputBox.SelBold
+        .FontSize = NodeInputBox.SelFontSize
+        .FontItalic = NodeInputBox.SelItalic
+        .FontUnderline = NodeInputBox.SelUnderline
+        .FontStrikethru = NodeInputBox.SelStrikeThru
+        .ShowFont
+        NodeInputBox.SelFontName = .FontName
+        NodeInputBox.SelBold = .FontBold
+        NodeInputBox.SelFontSize = .FontSize
+        NodeInputBox.SelItalic = .FontItalic
+        NodeInputBox.SelUnderline = .FontUnderline
+        NodeInputBox.SelStrikeThru = .FontStrikethru
+    End With
 End Sub
 
 Private Sub 左对齐_Click()
-NodeInputBox.SelAlignment = rtfLeft
+    NodeInputBox.SelAlignment = rtfLeft
 End Sub

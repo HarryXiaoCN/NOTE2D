@@ -21,7 +21,6 @@ Begin VB.Form NodePrint
       _ExtentX        =   10583
       _ExtentY        =   14102
       _Version        =   393217
-      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   3
       Appearance      =   0
@@ -44,24 +43,24 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Private Sub Form_Load()
-nodePrintBeLock = True
-If Note.全高透明3.Checked = True Then
-    FormTransparent Me, 50
-ElseIf Note.全半透明3.Checked = True Then
-    FormTransparent Me, 125
-ElseIf Note.全低透明3.Checked = True Then
-    FormTransparent Me, 200
-End If
+    nodePrintBeLock = True
+    If Note.全高透明3.Checked = True Then
+        FormTransparent Me, 50
+    ElseIf Note.全半透明3.Checked = True Then
+        FormTransparent Me, 125
+    ElseIf Note.全低透明3.Checked = True Then
+        FormTransparent Me, 200
+    End If
 End Sub
 
 Private Sub Form_Resize()
-If WindowState = 1 Then Exit Sub
-If Me.height < 4000 Then Me.Enabled = False: Me.height = 4000: Me.Enabled = True
-If Me.width < 6240 Then Me.Enabled = False: Me.width = 6240: Me.Enabled = True
-NodePrintBox.height = Me.height
-NodePrintBox.width = Me.width
+    If WindowState = 1 Then Exit Sub
+    If Me.height < 4000 Then Me.Enabled = False: Me.height = 4000: Me.Enabled = True
+    If Me.width < 6240 Then Me.Enabled = False: Me.width = 6240: Me.Enabled = True
+    NodePrintBox.height = Me.height
+    NodePrintBox.width = Me.width
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
-nodePrintBeLock = False
+    nodePrintBeLock = False
 End Sub

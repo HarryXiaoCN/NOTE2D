@@ -37,7 +37,7 @@ For i = 0 To 70
 Next
 End Function
 Public Function Rainbow_BlueEnd(ByRef i As Single) As Single
-Rainbow_BlueEnd = RGB(255, 0, 0)
+Rainbow_BlueEnd = 255
 If i > 0 And i <= 10 Then
     Rainbow_BlueEnd = RGB(255, 165 / 10 * i, 0)
 ElseIf i > 10 And i <= 20 Then
@@ -53,7 +53,7 @@ ElseIf i > 50 And i <= 60 Then
 End If
 End Function
 Public Function Rainbow_BackEnd(ByRef i As Single) As Single
-Rainbow_BackEnd = RGB(255, 0, 0)
+Rainbow_BackEnd = 255
 If i > 0 And i <= 10 Then
     Rainbow_BackEnd = RGB(255, 165 / 10 * i, 0)
 ElseIf i > 10 And i <= 20 Then
@@ -72,7 +72,7 @@ ElseIf i > 60 And i <= 70 Then
 End If
 End Function
 Public Function Rainbow_RedEnd(ByRef i As Single) As Single
-Rainbow_RedEnd = RGB(255, 0, 0)
+Rainbow_RedEnd = 255
 If i > 0 And i <= 10 Then
     Rainbow_RedEnd = RGB(255, 165 / 10 * i, 0)
 ElseIf i > 10 And i <= 20 Then

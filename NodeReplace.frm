@@ -264,15 +264,15 @@ Private titleMousePosX As Single, titleMousePosY As Single
 
 Private Sub CMDLabel_Click()
     Dim i As Long, sT As String, rT As String
-    sT = InTextBox(0).Text
-    rT = InTextBox(1).Text
+    sT = InTextBox(0).text
+    rT = InTextBox(1).text
     If SearchOptional(1).value = 1 Or SearchOptional(3).value = 1 Then
         For i = 0 To nSum
             With node(i)
                 If .b Then
                     If (.select = True And SearchOptional(0).value = 1) Or SearchOptional(0).value = 0 Then
                         If SearchOptional(1).value = 1 Then
-                            .content = Replace(富文本转义(.content), sT, rT)
+                            .content = Replace(.text, sT, rT)
                         End If
                         If SearchOptional(3).value = 1 Then
                             .t = Replace(.t, sT, rT)

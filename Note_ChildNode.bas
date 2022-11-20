@@ -142,7 +142,7 @@ Public Function ChildNodeFileRead(filePath As String, ntx() As String) As Boolea
     Close #fN
     version = NoteFileRead_VersionCheck(ntx(0))
     Select Case version
-        Case 202, 203
+        Case 202, 203, 204
             ChildNodeFileRead = True
     End Select
 End Function

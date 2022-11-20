@@ -7,8 +7,8 @@ Public Function NodePositionVague(vT As Single, Optional allNode As Boolean)
         With node(i)
             If .b Then
                 If .select = True Or allNode = True Then
-                    .x = (.x \ vT) * vT
-                    .y = (.y \ vT) * vT
+                    .X = (.X \ vT) * vT
+                    .Y = (.Y \ vT) * vT
                 End If
             End If
         End With
@@ -16,16 +16,16 @@ Public Function NodePositionVague(vT As Single, Optional allNode As Boolean)
 End Function
 
 Public Function ConnectionReversal() As Boolean
-Dim i As Long
-BehaviorIdSet
-For i = 0 To lSum
-    With nodeLine(i)
-        If .b = True And .select = True Then
-            LineDelete i
-            LineAdd .target, .Source, .content, .size
-        End If
-    End With
-Next
+    Dim i As Long
+    BehaviorIdSet
+    For i = 0 To lSum
+        With nodeLine(i)
+            If .b = True And (.select = True Or lineTargetAim = i) Then
+                LineDelete i
+                LineAdd .target, .Source, .content, .size
+            End If
+        End With
+    Next
 End Function
 Public Function 限制数值(ByVal num As Double, ByVal min As Double, ByVal max As Double) As Double
     If num > max Then num = max
@@ -110,12 +110,12 @@ For i = 0 To nSum
         If .b = True And ((selectMode = True And .select = True) Or selectMode = False) Then
             If capsLook = True Then
                 NodeFind.nodeTmp.TextRTF = .content
-                contentText = NodeFind.nodeTmp.Text
+                contentText = NodeFind.nodeTmp.text
                 tStr = .t
                 findStrCase = findStr
             Else
                 NodeFind.nodeTmp.TextRTF = .content
-                contentText = UCase(NodeFind.nodeTmp.Text)
+                contentText = UCase(NodeFind.nodeTmp.text)
                 tStr = UCase(.t)
                 findStrCase = UCase(findStr)
             End If
@@ -164,8 +164,8 @@ With fN(0)
     .t = findStr
     .setSize = nodeDefaultSize
     .setColor = nodeDefaultColor
-    .x = Note.width / 2
-    .y = Note.height / 2
+    .X = Note.width / 2
+    .Y = Note.height / 2
 End With
 ntx = NoteFileWrite_204_Coding(fN, fNSum, fL, fLSum)
 filename = FreeFile
@@ -200,7 +200,11 @@ Public Sub LineListVisUpdata()
 End Sub
 Public Function 富文本转义(s As String) As String
     NodeListVis.转义文本.TextRTF = s
-    富文本转义 = NodeListVis.转义文本.Text
+    富文本转义 = NodeListVis.转义文本.text
+End Function
+Public Function 转为富文本(s As String) As String
+    NodeListVis.转义文本.text = s
+    转为富文本 = NodeListVis.转义文本.TextRTF
 End Function
 Public Function RollerEventHandling(ByRef narrow As Boolean)
     Dim oldZF As Single, mousePrimaryPos As 三维坐标
@@ -218,26 +222,26 @@ Public Function RollerEventHandling(ByRef narrow As Boolean)
 End Function
 Public Function MainCoordinateSystemDefinition()
 '    Note.Scale (-angleOfView.X, Note.height * zoomFactor - angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, -angleOfView.Y)
-    Note.Scale (-angleOfView.x, -angleOfView.y)-(Note.width * zoomFactor - angleOfView.x, Note.height * zoomFactor - angleOfView.y)
+    Note.Scale (-angleOfView.X, -angleOfView.Y)-(Note.width * zoomFactor - angleOfView.X, Note.height * zoomFactor - angleOfView.Y)
 End Function
 Public Function MainCoordinateSystemReduction(mousePrimaryPos As 三维坐标, oldZF As Single)
 '    angleOfView.X = mousePrimaryPos.X / mousePrimaryPos.z * (zoomFactor - oldZF)
 '    angleOfView.Y = mousePrimaryPos.Y / mousePrimaryPos.z * (zoomFactor - oldZF)
-    angleOfView.x = mousePrimaryPos.x * (zoomFactor - 1)
-    angleOfView.y = mousePrimaryPos.y * (zoomFactor - 1)
+    angleOfView.X = mousePrimaryPos.X * (zoomFactor - 1)
+    angleOfView.Y = mousePrimaryPos.Y * (zoomFactor - 1)
     MainCoordinateSystemDefinition
 End Function
 Public Function FindNode_NewNoteOutput_CircularArray(ByRef arrayObj As 节点, ByRef arrAngle As Single, ByRef fNSum As Long)
 If arrAngle > PI / 2 Then
     arrAngle = PI - arrAngle
-    arrayObj.x = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
+    arrayObj.X = 300 * fNSum * -Cos(arrAngle) + Note.width / 2
 Else
-    arrayObj.x = 300 * fNSum * Cos(arrAngle) + Note.width / 2
+    arrayObj.X = 300 * fNSum * Cos(arrAngle) + Note.width / 2
 End If
 If NodeFind.圆形阵列.Checked = True Then
-    arrayObj.y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.Y = 300 * fNSum * Sin(arrAngle) + Note.height / 2
 Else
-    arrayObj.y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
+    arrayObj.Y = 600 * fNSum * Sin(arrAngle) + Note.height / 2
 End If
 End Function
 
@@ -321,7 +325,7 @@ Public Function PasteObject()
     End Select
     Exit Function
 Er:
-    NodeEdit_NewNode "", pasteStr, nodeDefaultColor, nodeDefaultSize, mousePos.x, mousePos.y
+    NodeEdit_NewNode "", pasteStr, nodeDefaultColor, nodeDefaultSize, mousePos.X, mousePos.Y
 End Function
 Public Function PasteObject_GetNtx(ByRef listStr)
     Dim i As Long, ntx() As String
@@ -342,10 +346,10 @@ Public Function PasteObject_NtxFileCheck(ByVal linStr As String) As Long
 End Function
 Public Function PasteObject_Local_Node()
     Dim i As Long: Dim firstPos As 二维坐标
-    firstPos.x = node(copyNIdList(0)).x: firstPos.y = node(copyNIdList(0)).y
+    firstPos.X = node(copyNIdList(0)).X: firstPos.Y = node(copyNIdList(0)).Y
     For i = 0 To copyNSum - 1
         With node(copyNIdList(i))
-            NodeEdit_NewNode .t, .content, .setColor, .setSize, .x - firstPos.x + mousePos.x, .y - firstPos.y + mousePos.y, True
+            NodeEdit_NewNode .t, .content, .setColor, .setSize, .X - firstPos.X + mousePos.X, .Y - firstPos.Y + mousePos.Y, True
         End With
     Next
 End Function
@@ -397,12 +401,12 @@ Public Function CopyObject_Node(ByRef delSoure As Boolean)
                 If .select = True Or i = nodeTargetAim Then
                     copyNIdList(copyNSum) = i
                     If copyNSum = 0 Then
-                        firstPos.x = .x: firstPos.y = .y
-                        copyNodeList(copyNSum).x = 0
-                        copyNodeList(copyNSum).y = 0
+                        firstPos.X = .X: firstPos.Y = .Y
+                        copyNodeList(copyNSum).X = 0
+                        copyNodeList(copyNSum).Y = 0
                     Else
-                        copyNodeList(copyNSum).x = .x - firstPos.x
-                        copyNodeList(copyNSum).y = .y - firstPos.y
+                        copyNodeList(copyNSum).X = .X - firstPos.X
+                        copyNodeList(copyNSum).Y = .Y - firstPos.Y
                     End If
                     copyNodeList(copyNSum).b = True
                     copyNodeList(copyNSum).t = .t
@@ -410,16 +414,16 @@ Public Function CopyObject_Node(ByRef delSoure As Boolean)
                     copyNodeList(copyNSum).setColor = .setColor
                     copyNodeList(copyNSum).setSize = .setSize
                     copyNSum = copyNSum + 1
-                    If delSoure = True Then .b = False
+                    If delSoure = True Then NodeDelete i
                 End If
             End If
         End With
     Next
 End Function
-Public Function CopyObject_Line_GetNodeRelativityId(ByRef nid As Long) As Long
+Public Function CopyObject_Line_GetNodeRelativityId(ByRef nId As Long) As Long
     Dim i As Long
     For i = 0 To copyNSum
-        If copyNIdList(i) = nid Then
+        If copyNIdList(i) = nId Then
             CopyObject_Line_GetNodeRelativityId = i: Exit Function
         End If
     Next
@@ -480,15 +484,15 @@ Public Function DeselectObjcet()
         End With
     Next
 End Function
-Public Function ChainSelection(ByRef nid As Long, ByRef selectMode As Long)
+Public Function ChainSelection(ByRef nId As Long, ByRef selectMode As Long)
     Select Case selectMode
         Case 0
-            ChainSelection_All nid
+            ChainSelection_All nId
     End Select
 End Function
 Public Function DirectSelect()
     Dim aim As Long, i As Long
-    aim = NodeCheck(mousePos.x, mousePos.y)
+    aim = NodeCheck(mousePos.X, mousePos.Y)
     If aim = -1 Then Exit Function
     node(aim).select = True
     For i = 0 To lSum
@@ -520,15 +524,15 @@ Public Function AllSelection()
     Next
 End Function
 
-Public Function ChainSelection_All(ByRef nid As Long) '关联选区
+Public Function ChainSelection_All(ByRef nId As Long) '关联选区
     Dim i As Long
-    node(nid).select = True
+    node(nId).select = True
     For i = 0 To lSum
         With nodeLine(i)
             If .b = True And .search = False Then
                 .search = True
-                If .Source = nid Then ChainSelection_All .target: .select = True
-                If .target = nid Then ChainSelection_All .Source: .select = True
+                If .Source = nId Then ChainSelection_All .target: .select = True
+                If .target = nId Then ChainSelection_All .Source: .select = True
                 .search = False
             End If
         End With
