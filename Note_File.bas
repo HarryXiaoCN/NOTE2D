@@ -141,13 +141,13 @@ Public Function LoadProfile_ReadLine(ByRef lineTmp As String)
     ElseIf InStr(1, lineTmp, "文件更改检测=") Then
         Note.文件更改检测.Checked = ESRBool
     ElseIf InStr(1, lineTmp, "长=") Then
-        Note.width = Val(ESRStr)
+        Note.width = 限制数值(Val(ESRStr), 5000, Val(ESRStr))
     ElseIf InStr(1, lineTmp, "宽=") Then
-        Note.height = Val(ESRStr)
+        Note.height = 限制数值(Val(ESRStr), 5000, Val(ESRStr))
     ElseIf InStr(1, lineTmp, "主界面X位置=") Then
-        Note.left = Val(ESRStr)
+        Note.left = 限制数值(Val(ESRStr), 0, Val(ESRStr))
     ElseIf InStr(1, lineTmp, "主界面Y位置=") Then
-        Note.Top = Val(ESRStr)
+        Note.Top = 限制数值(Val(ESRStr), 0, Val(ESRStr))
     ElseIf InStr(1, lineTmp, "连接节点列表窗口X位置=") Then
         lineNodeListFormLeft = Val(ESRStr)
     ElseIf InStr(1, lineTmp, "连接节点列表窗口Y位置=") Then
@@ -690,6 +690,17 @@ Public Function newAddNote()
     ntxPath = App.path & "\新建节点笔记.ntx"
     ntxPathNoName = 去除路径文件名(ntxPath)
     Note.Caption = NOTEFORMNAME & ntxPath
+    MainCoordinateSystemDefinition
+    Note.MainTime.Enabled = True
+End Function
+Public Function ClearAll()
+    Note.MainTime.Enabled = False
+    nodePreviousEditAim = -1
+    specifyingConnectionNodeId_s = -1
+    specifyingConnectionNodeId_t = -1
+    noteArrInitialization
+    nSum = 0: lSum = 0: bHLSum = 0: magnification = 0: zoomFactor = 1
+    Note.GlobalView.Cls
     MainCoordinateSystemDefinition
     Note.MainTime.Enabled = True
 End Function

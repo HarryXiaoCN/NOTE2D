@@ -1,10 +1,10 @@
 Note_Engine = 182, 182, 2056, 1059, 
 Node_Edit = 0, 0, 0, 0, C
-Note_File = 52, 52, 1926, 929, Z
+Note_File = 52, 52, 1926, 929, 
 Note_Function = 946, 104, 2820, 981, C
 Note_Map = 0, 0, 0, 0, C
 rainbow = 156, 156, 1096, 736, 
-Note_CMD = 0, 0, 0, 0, C
+Note_CMD = 208, 208, 884, 639, Z
 Note = 133, 182, 2007, 1059, , 52, 52, 1399, 650, C
 NodeInput = 211, 452, 2085, 1329, , 772, 186, 2646, 1063, C
 NoteControlDesk = 0, 0, 0, 0, C, 260, 260, 2134, 1137, C

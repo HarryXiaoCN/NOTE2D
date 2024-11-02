@@ -47,7 +47,8 @@ Private Function CMD_LineExecute(cmd As String) As String
                             & vbCrLf & "重置镜头位置[RESETLENSPOSITION/PLP] X(数值),Y(数值)" _
                             & vbCrLf & "色彩链路表修改[COLORLINKDICMOD/CLDM] 字典字符串(VBColor1:VBColor2,VBColor2:VBColor3...)" _
                             & vbCrLf & "色彩链路表重置[COLORLINKDICRESET/CLDS]" _
-                            & vbCrLf & "打印色彩链路表[PRINTCOLORLINKDIC/PCLD]"
+                            & vbCrLf & "打印色彩链路表[PRINTCOLORLINKDIC/PCLD]" _
+                            & vbCrLf & "清空全部[CLEARALL/CA]"
             Exit Function
         Case "阵列新增节点", "FORNODEADD"
             阵列新增节点 Val(cT(1)), Val(cT(2)), Val(cT(3)), Val(cT(4)), Val(cT(5)), Val(cT(6)), cT(7), cT(8), cT(9), Val(cT(10)), Val(cT(11))
@@ -162,6 +163,9 @@ Private Function CMD_LineExecute(cmd As String) As String
         Case "打印色彩链路表", "PRINTCOLORLINKDIC", "PCLD"
             CMD_LineExecute = 色彩链路字典导出
             Exit Function
+        Case "清空全部", "CLEARALL", "CA"
+            ClearAll
+            GoTo Success
     End Select
     CMD_LineExecute = "未知命令！"
 Exit Function
@@ -278,23 +282,23 @@ Private Function 选中节点(allNid As String)
         End If
     Next
 End Function
-Private Function 删除节点(nid As String)
+Private Function 删除节点(nId As String)
     Dim allNidTemp() As String, i As Long
-    allNidTemp = Split(nid, ",")
+    allNidTemp = Split(nId, ",")
     For i = 0 To UBound(allNidTemp)
         If allNidTemp(i) <> "" Then
             NodeDelete Val(allNidTemp(i))
         End If
     Next
 End Function
-Private Function 位移节点(nid As Long, X As Single, Y As Single)
-    With node(nid)
+Private Function 位移节点(nId As Long, X As Single, Y As Single)
+    With node(nId)
         .X = X
         .Y = Y
     End With
 End Function
-Private Function 编辑节点(nid As Long, t As String, content As String, color As Long, size As Single)
-    NodeEdit_ReviseNode nid, 空格转义(t), 空格转义(content), color, size
+Private Function 编辑节点(nId As Long, t As String, content As String, color As Long, size As Single)
+    NodeEdit_ReviseNode nId, 空格转义(t), 空格转义(content), color, size
 End Function
 Public Function 字符串转布尔值(s As String) As Boolean
     If s = "1" Then
